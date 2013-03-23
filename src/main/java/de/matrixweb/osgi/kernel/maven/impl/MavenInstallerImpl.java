@@ -1,7 +1,6 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -9,25 +8,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.FrameworkWiring;
-import org.xml.sax.SAXException;
 
 import de.matrixweb.osgi.kernel.maven.MavenInstaller;
 import de.matrixweb.osgi.kernel.utils.Logger;
@@ -37,14 +32,9 @@ import de.matrixweb.osgi.kernel.utils.Logger;
  */
 public class MavenInstallerImpl implements MavenInstaller {
 
-  private static final SAXParserFactory PARSER_FACTORY = SAXParserFactory
-      .newInstance();
-
   private final String repository;
 
   private final Framework framework;
-
-  private final Map<String, Pom> current = new HashMap<String, Pom>();
 
   /**
    * @param repository
@@ -165,7 +155,7 @@ public class MavenInstallerImpl implements MavenInstaller {
       throws BundleException, IOException {
     final Set<BundleTask> tasks = new HashSet<MavenInstallerImpl.BundleTask>();
     try {
-      final Pom rpom = resolvePom(pom, input);
+      final Pom rpom = new PomResolver(this.repository).resolvePom(pom, input);
       tasks.add(installBundle(rpom.toURN(), rpom));
       final List<String> embedded = getEmbeddedDependencies(tasks.iterator()
           .next().bundle);
@@ -247,51 +237,6 @@ public class MavenInstallerImpl implements MavenInstaller {
       }
       fw.refreshBundles(bundles);
     }
-  }
-
-  private Pom resolvePom(final Pom pom) throws IOException,
-      ParserConfigurationException {
-    return resolvePom(pom, null);
-  }
-
-  private Pom resolvePom(final Pom pom, final InputStream input)
-      throws IOException, ParserConfigurationException {
-    if (this.current.containsKey(pom.toURN())) {
-      // Fast-Return recursive dependency declarations (managed dependencies)
-      return this.current.get(pom.toURN());
-    }
-    this.current.put(pom.toURN(), pom);
-    try {
-      InputStream is;
-      if (input == null) {
-        is = new URL(pom.toUrl(this.repository, "pom")).openStream();
-      } else {
-        is = input;
-      }
-      try {
-        PARSER_FACTORY.newSAXParser().parse(is, new PomParser(pom));
-        if (pom.getParent() != null) {
-          pom.setParent(resolvePom(pom.getParent()));
-        }
-        final List<Pom> list = new ArrayList<Pom>(pom.getDependencies());
-        pom.clearDependencies();
-        for (final Pom dependency : list) {
-          dependency.updateAfterParentResolved();
-          pom.addDependency(resolvePom(dependency));
-        }
-        this.current.remove(pom.toURN());
-      } finally {
-        is.close();
-      }
-    } catch (final SAXException e) {
-      // Skipping invalid pom
-      System.out.println("Invalid pom " + pom.toURN() + " ... skipping");
-      this.current.remove(pom.toURN());
-    } catch (final FileNotFoundException e) {
-      // Skipping missing pom
-      this.current.remove(pom.toURN());
-    }
-    return pom;
   }
 
   private BundleTask installBundle(final String location, final Pom pom)

@@ -61,10 +61,13 @@ public class Pom extends Artifact {
   private void initProperties() {
     addProperty("project.groupId", getGroupId());
     addProperty("pom.groupId", getGroupId());
+    addProperty("groupId", getGroupId());
     addProperty("project.artifactId", getArtifactId());
     addProperty("pom.artifactId", getArtifactId());
+    addProperty("artifactId", getArtifactId());
     addProperty("project.version", getVersion());
     addProperty("pom.version", getVersion());
+    addProperty("version", getVersion());
   }
 
   void updateAfterParentResolved() {

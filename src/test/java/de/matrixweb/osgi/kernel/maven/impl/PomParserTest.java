@@ -11,9 +11,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.junit.Test;
 
-import de.matrixweb.osgi.kernel.maven.impl.Pom;
-import de.matrixweb.osgi.kernel.maven.impl.PomParser;
-
 /**
  * @author markusw
  */
