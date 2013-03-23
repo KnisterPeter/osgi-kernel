@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -241,7 +242,21 @@ public class Pom extends Artifact {
         set.add(result);
       }
     }
-    return set;
+    return removeNearestExclusions(set);
+  }
+
+  private Set<Pom> removeNearestExclusions(final Set<Pom> dependencies) {
+    final Set<String> excl = new HashSet<String>();
+    for (final Pom dependency : dependencies) {
+      excl.addAll(dependency.getAllExclusions());
+    }
+    final Iterator<Pom> it = dependencies.iterator();
+    while (it.hasNext()) {
+      if (excl.contains(it.next().getGroupArtifactKey())) {
+        it.remove();
+      }
+    }
+    return dependencies;
   }
 
   private Pom findNearestDependency(final Queue<Pom> nodes,

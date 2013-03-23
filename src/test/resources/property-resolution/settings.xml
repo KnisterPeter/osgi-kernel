@@ -3,5 +3,5 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <offline>false</offline>
-  <localRepository>../../../../target/.m2</localRepository>
+  <localRepository>local-m2</localRepository>
 </settings>
