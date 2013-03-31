@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>group.id</groupId>
+    <artifactId>parent</artifactId>
+    <version>1</version>
+  </parent>
+
+  <artifactId>m2</artifactId>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>m1</artifactId>
+      <type>pom</type>
+    </dependency>
+  </dependencies>
+</project>

@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -57,6 +58,26 @@ public class PomResolverTest {
     assertThat(list.contains("mvn:sko.repro:base:1"), is(true));
     assertThat(list.contains("mvn:sko.repro:level1:1"), is(true));
     assertThat(list.contains("mvn:sko.repro:level2:1"), is(true));
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testManagedDependencies() throws Exception {
+    final Pom pom = new Pom("group.id", "m2", "1");
+    new PomResolver("file:src/test/resources/managed-dependencies/local-m2")
+        .resolvePom(pom);
+    final Collection<Pom> dependencies = pom
+        .resolveNearestDependencies(new Filter.AcceptAll());
+    assertThat(dependencies.size(), is(3));
+    final List<String> list = new ArrayList<String>();
+    for (final Pom dep : dependencies) {
+      list.add(dep.toURN());
+    }
+    assertThat(list.contains("mvn:group.id:m1:1:pom"), is(true));
+    assertThat(list.contains("mvn:group.id:m2:1"), is(true));
+    assertThat(list.contains("mvn:junit:junit:3.8.1:pom"), is(true));
   }
 
 }
