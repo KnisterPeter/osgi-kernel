@@ -9,12 +9,12 @@ import java.util.List;
 public interface Filter {
 
   /**
-   * @param pom
-   *          The {@link Pom} to apply the filter on
-   * @return Returns true if the given {@link Pom} should be included, false
-   *         otherwise.
+   * @param dependency
+   *          The {@link Dependency} to apply the filter on
+   * @return Returns true if the given {@link Dependency} should be included,
+   *         false otherwise.
    */
-  boolean accept(Pom pom);
+  boolean accept(Dependency dependency);
 
   /** */
   class CompoundFilter implements Filter {
@@ -29,13 +29,13 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
+    public boolean accept(final Dependency dependency) {
       boolean accept = true;
       for (final Filter filter : filters) {
-        accept &= filter.accept(pom);
+        accept &= filter.accept(dependency);
       }
       return accept;
     }
@@ -46,10 +46,10 @@ public interface Filter {
   class AcceptAll implements Filter {
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
+    public boolean accept(final Dependency dependency) {
       return true;
     }
 
@@ -68,11 +68,11 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
-      return scopes.contains(pom.getScope());
+    public boolean accept(final Dependency dependency) {
+      return scopes.contains(dependency.getScope());
     }
 
   }
@@ -90,11 +90,11 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
-      return types.contains(pom.getType());
+    public boolean accept(final Dependency dependency) {
+      return types.contains(dependency.getType());
     }
 
   }
@@ -112,11 +112,11 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
-      return !types.contains(pom.getType());
+    public boolean accept(final Dependency dependency) {
+      return !types.contains(dependency.getType());
     }
 
   }
@@ -134,11 +134,11 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Pom)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
      */
     @Override
-    public boolean accept(final Pom pom) {
-      return optional.equals(pom.isOptional());
+    public boolean accept(final Dependency dependency) {
+      return optional.equals(dependency.isOptional());
     }
 
   }

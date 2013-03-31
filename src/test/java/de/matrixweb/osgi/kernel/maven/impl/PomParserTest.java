@@ -21,7 +21,7 @@ public class PomParserTest {
    */
   @Test
   public void test() throws Exception {
-    final Pom pom = new Pom("groupId", "artifactId", "version");
+    final PomImpl pom = new PomImpl("groupId", "artifactId", "version");
     final InputStream is = new FileInputStream(new File("pom.xml"));
     SAXParserFactory.newInstance().newSAXParser().parse(is, new PomParser(pom));
     assertThat(pom.getPackaging(), is("jar"));

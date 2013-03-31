@@ -102,7 +102,7 @@ public class MavenInstallerImpl implements MavenInstaller {
   private Set<BundleTask> installFromJarFile(final JarFile jar)
       throws IOException {
     InputStream input = null;
-    Pom pom = null;
+    PomImpl pom = null;
     final Enumeration<JarEntry> entries = jar.entries();
     while (entries.hasMoreElements()) {
       final JarEntry entry = entries.nextElement();
@@ -114,7 +114,7 @@ public class MavenInstallerImpl implements MavenInstaller {
         try {
           final Properties props = new Properties();
           props.load(is);
-          pom = new Pom(props.getProperty("groupId"),
+          pom = new PomImpl(props.getProperty("groupId"),
               props.getProperty("artifactId"), props.getProperty("version"));
         } finally {
           is.close();
@@ -145,7 +145,7 @@ public class MavenInstallerImpl implements MavenInstaller {
       IOException {
     final String[] parts = command.split(":");
     if ("mvn".equals(parts[0])) {
-      final Pom pom = new Pom(parts[1], parts[2], parts[3]);
+      final PomImpl pom = new PomImpl(parts[1], parts[2], parts[3]);
       return install(pom, null);
     }
     return Collections.emptySet();
@@ -159,14 +159,16 @@ public class MavenInstallerImpl implements MavenInstaller {
       tasks.add(installBundle(rpom.toURN(), rpom));
       final List<String> embedded = getEmbeddedDependencies(tasks.iterator()
           .next().bundle);
-
+      if (!"pom".equals(rpom.getPackaging())) {
+        tasks.add(installBundle(rpom.toURN(), rpom));
+      }
       final List<Pom> requiredDependencies = new LinkedList<Pom>();
-      for (final Pom dependecy : rpom
+      for (final Dependency dependecy : rpom
           .resolveNearestDependencies(new Filter.CompoundFilter(
               new Filter.AcceptScopes("compile", "runtime"),
               new Filter.NotAcceptTypes("pom")))) {
-        if (!embedded.contains(dependecy.toURN())) {
-          requiredDependencies.add(dependecy);
+        if (!embedded.contains(dependecy.getPom().toURN())) {
+          requiredDependencies.add(dependecy.getPom());
         }
       }
       for (final Pom dep : requiredDependencies) {

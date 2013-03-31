@@ -70,12 +70,7 @@ public class PomResolver {
         if (pom.getParent() != null) {
           pom.setParent(resolvePom(pom.getParent()));
         }
-        final List<Pom> list = new ArrayList<Pom>(pom.getDependencies());
-        pom.clearDependencies();
-        for (final Pom dependency : list) {
-          dependency.updateAfterParentResolved();
-          pom.addDependency(resolvePom(dependency));
-        }
+        resolveDependencies(pom);
         this.current.remove(pom.toURN());
       } finally {
         is.close();
@@ -89,6 +84,19 @@ public class PomResolver {
       this.current.remove(pom.toURN());
     }
     return pom;
+  }
+
+  private void resolveDependencies(final Pom pom) throws IOException,
+      ParserConfigurationException {
+    if (pom instanceof PomImpl) {
+      final List<Dependency> list = new ArrayList<Dependency>(
+          pom.getDependencies());
+      ((PomImpl) pom).clearDependencies();
+      for (final Dependency dependency : list) {
+        dependency.updateAfterParentResolved();
+        pom.addDependency(new DependencyImpl(resolvePom(dependency.getPom())));
+      }
+    }
   }
 
 }

@@ -20,7 +20,7 @@ public class PomResolverTest {
    */
   @Test
   public void testPropertyResolution() throws Exception {
-    final Pom pom = new Pom("sko.repro1", "sub1", "1");
+    final PomImpl pom = new PomImpl("sko.repro1", "sub1", "1");
     new PomResolver("file:src/test/resources/property-resolution/local-m2")
         .resolvePom(pom);
 
@@ -29,12 +29,15 @@ public class PomResolverTest {
     assertThat(pom.getVersion(), is("1"));
 
     assertThat(pom.getDependencies().size(), is(2));
-    for (final Pom dependency : pom.getDependencies()) {
-      if ("sko.repro1".equals(dependency.getGroupId())) {
-        assertThat(dependency.getArtifactId(), is("sub2"));
-        assertThat(dependency.getVersion(), is("1"));
+    for (final Dependency dependency : pom.getDependencies()) {
+      if ("sko.repro1".equals(dependency.getPom().getGroupId())) {
+        assertThat(dependency.getPom().getArtifactId(), is("sub2"));
+        assertThat(dependency.getPom().getVersion(), is("1"));
       }
     }
+
+    System.out
+        .println("Test PropertyResolution:\n" + new Dumper().dump(1, pom));
   }
 
   /**
@@ -43,21 +46,25 @@ public class PomResolverTest {
   @Test
   public void testNearestDependencyResolutionIncludingExcludes()
       throws Exception {
-    final Pom pom = new Pom("sko.repro", "base", "1");
+    final PomImpl pom = new PomImpl("sko.repro", "base", "1");
     new PomResolver("file:src/test/resources/omit-duplicate/local-m2")
         .resolvePom(pom);
-    final Set<Pom> dependencies = pom
+    assertThat(pom.toURN(), is("mvn:sko.repro:base:1"));
+
+    final Set<Dependency> dependencies = pom
         .resolveNearestDependencies(new Filter.CompoundFilter(
             new Filter.AcceptScopes("compile", "runtime"),
             new Filter.NotAcceptTypes("pom")));
     final List<String> list = new ArrayList<String>();
-    for (final Pom dep : dependencies) {
-      list.add(dep.toURN());
+    for (final Dependency dep : dependencies) {
+      list.add(dep.getPom().toURN());
     }
-    assertThat(list.size(), is(3));
-    assertThat(list.contains("mvn:sko.repro:base:1"), is(true));
+    assertThat(list.size(), is(2));
     assertThat(list.contains("mvn:sko.repro:level1:1"), is(true));
     assertThat(list.contains("mvn:sko.repro:level2:1"), is(true));
+
+    System.out.println("Test NearestDependencyResolution:\n"
+        + new Dumper().dump(1, pom));
   }
 
   /**
@@ -65,19 +72,23 @@ public class PomResolverTest {
    */
   @Test
   public void testManagedDependencies() throws Exception {
-    final Pom pom = new Pom("group.id", "m2", "1");
+    final Pom pom = new PomImpl("group.id", "m2", "1");
     new PomResolver("file:src/test/resources/managed-dependencies/local-m2")
         .resolvePom(pom);
-    final Collection<Pom> dependencies = pom
+    assertThat(pom.toURN(), is("mvn:group.id:m2:1"));
+
+    final Collection<Dependency> dependencies = pom
         .resolveNearestDependencies(new Filter.AcceptAll());
-    assertThat(dependencies.size(), is(3));
+    assertThat(dependencies.size(), is(2));
     final List<String> list = new ArrayList<String>();
-    for (final Pom dep : dependencies) {
-      list.add(dep.toURN());
+    for (final Dependency dep : dependencies) {
+      list.add(dep.getPom().toURN());
     }
     assertThat(list.contains("mvn:group.id:m1:1:pom"), is(true));
-    assertThat(list.contains("mvn:group.id:m2:1"), is(true));
     assertThat(list.contains("mvn:junit:junit:3.8.1:pom"), is(true));
+
+    System.out.println("Test ManagedDependencies:\n"
+        + new Dumper().dump(1, pom));
   }
 
 }
