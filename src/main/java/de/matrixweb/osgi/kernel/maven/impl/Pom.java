@@ -1,9 +1,7 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author markusw
@@ -44,15 +42,6 @@ public interface Pom extends Artifact {
   Map<String, Dependency> getManagedDependencies();
 
   /**
-   * TODO: This should be done in the resolver not in the {@link Pom}
-   * 
-   * @param filter
-   * @return Returns a {@link Set} of {@link Pom}s which are the nearest
-   *         dependencies of this {@link Pom}
-   */
-  Set<Dependency> resolveNearestDependencies(Filter filter);
-
-  /**
    * @param dependency
    *          the dependency to add
    */
@@ -64,21 +53,6 @@ public interface Pom extends Artifact {
   Collection<Dependency> getDependencies();
 
   /**
-   * TODO: Exclusions belong to the dependency not the {@link Pom}
-   * 
-   * @param exclusion
-   *          the exclusion to add
-   */
-  void addExclusion(String exclusion);
-
-  /**
-   * TODO: Exclusions belong to the dependency not the {@link Pom}
-   * 
-   * @return Returns the exclusions
-   */
-  List<String> getExclusions();
-
-  /**
    * @return the properties
    */
   Map<String, String> getProperties();
@@ -88,6 +62,13 @@ public interface Pom extends Artifact {
    * @param value
    */
   void addProperty(String name, String value);
+
+  /**
+   * @param input
+   *          An input string
+   * @return Returns the resolved input string
+   */
+  String resolveProperties(final String input);
 
   /**
    * @param repository

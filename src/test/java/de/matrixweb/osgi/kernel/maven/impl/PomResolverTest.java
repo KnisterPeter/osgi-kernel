@@ -3,92 +3,122 @@ package de.matrixweb.osgi.kernel.maven.impl;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 /**
  * @author markusw
  */
 public class PomResolverTest {
 
+  /** */
+  @Rule
+  public TestName name = new TestName();
+
+  private final PomResolver resolver = new PomResolver(
+      "file:src/test/resources/local-m2");
+
+  private void assertListContains(
+      final Collection<? extends Artifact> artifacts, final String... urns) {
+    final List<String> list = Arrays.asList(urns);
+    for (final Artifact artifact : artifacts) {
+      assertThat(list.contains(MavenUtils.toURN(artifact)), is(true));
+    }
+  }
+
+  private void dump(final Pom pom) throws IOException,
+      ParserConfigurationException {
+    dump(pom, new Filter.AcceptAll());
+  }
+
+  private void dump(final Pom pom, final Filter filter) throws IOException,
+      ParserConfigurationException {
+    System.out.println("\n*****\n" + this.name.getMethodName() + "()\n");
+    System.out.println(MavenUtils.dump(this.resolver, filter, pom) + "\n");
+  }
+
   /**
+   * Note: This is test-case 'property-resolution'
+   * 
    * @throws Exception
    */
   @Test
   public void testPropertyResolution() throws Exception {
-    final PomImpl pom = new PomImpl("sko.repro1", "sub1", "1");
-    new PomResolver("file:src/test/resources/property-resolution/local-m2")
-        .resolvePom(pom);
-
-    assertThat(pom.getGroupId(), is("sko.repro1"));
-    assertThat(pom.getArtifactId(), is("sub1"));
-    assertThat(pom.getVersion(), is("1"));
-
+    Pom pom = new PomImpl("sko.repro1", "sub1", "1");
+    pom = this.resolver.resolvePom(pom);
+    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro1:sub1:1:pom"));
+    dump(pom);
     assertThat(pom.getDependencies().size(), is(2));
-    for (final Dependency dependency : pom.getDependencies()) {
-      if ("sko.repro1".equals(dependency.getPom().getGroupId())) {
-        assertThat(dependency.getPom().getArtifactId(), is("sub2"));
-        assertThat(dependency.getPom().getVersion(), is("1"));
-      }
-    }
-
-    System.out
-        .println("Test PropertyResolution:\n" + new Dumper().dump(1, pom));
+    assertListContains(pom.getDependencies(), "mvn:sko.repro1:sub2:1:pom",
+        "mvn:org.apache.felix:org.osgi.core:1.4.0");
   }
 
   /**
+   * Note: This is test-case 'omit-duplicate'
+   * 
    * @throws Exception
    */
   @Test
   public void testNearestDependencyResolutionIncludingExcludes()
       throws Exception {
-    final PomImpl pom = new PomImpl("sko.repro", "base", "1");
-    new PomResolver("file:src/test/resources/omit-duplicate/local-m2")
-        .resolvePom(pom);
-    assertThat(pom.toURN(), is("mvn:sko.repro:base:1"));
-
-    final Set<Dependency> dependencies = pom
-        .resolveNearestDependencies(new Filter.CompoundFilter(
-            new Filter.AcceptScopes("compile", "runtime"),
-            new Filter.NotAcceptTypes("pom")));
-    final List<String> list = new ArrayList<String>();
-    for (final Dependency dep : dependencies) {
-      list.add(dep.getPom().toURN());
-    }
-    assertThat(list.size(), is(2));
-    assertThat(list.contains("mvn:sko.repro:level1:1"), is(true));
-    assertThat(list.contains("mvn:sko.repro:level2:1"), is(true));
-
-    System.out.println("Test NearestDependencyResolution:\n"
-        + new Dumper().dump(1, pom));
+    Pom pom = new PomImpl("sko.repro", "base", "1");
+    pom = this.resolver.resolvePom(pom);
+    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro:base:1"));
+    final Filter filter = new Filter.CompoundFilter(new Filter.AcceptScopes(
+        "compile", "runtime"), new Filter.NotAcceptTypes("pom"));
+    dump(pom, filter);
+    final Set<Pom> dependencies = this.resolver.getFilteredDependencies(pom,
+        filter);
+    assertThat(dependencies.size(), is(2));
+    assertListContains(dependencies, "mvn:sko.repro:level1:1",
+        "mvn:sko.repro:level2:1");
   }
 
   /**
+   * Note: This is test-case 'managed-dependencies'
+   * 
    * @throws Exception
    */
   @Test
   public void testManagedDependencies() throws Exception {
-    final Pom pom = new PomImpl("group.id", "m2", "1");
-    new PomResolver("file:src/test/resources/managed-dependencies/local-m2")
-        .resolvePom(pom);
-    assertThat(pom.toURN(), is("mvn:group.id:m2:1"));
-
-    final Collection<Dependency> dependencies = pom
-        .resolveNearestDependencies(new Filter.AcceptAll());
+    Pom pom = new PomImpl("group.id", "m2", "1");
+    pom = this.resolver.resolvePom(pom);
+    assertThat(MavenUtils.toURN(pom), is("mvn:group.id:m2:1:pom"));
+    final Filter filter = new Filter.AcceptAll();
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
     assertThat(dependencies.size(), is(2));
-    final List<String> list = new ArrayList<String>();
-    for (final Dependency dep : dependencies) {
-      list.add(dep.getPom().toURN());
-    }
-    assertThat(list.contains("mvn:group.id:m1:1:pom"), is(true));
-    assertThat(list.contains("mvn:junit:junit:3.8.1:pom"), is(true));
+    assertListContains(dependencies, "mvn:group.id:m1:1:pom",
+        "mvn:junit:junit:3.8.1");
+  }
 
-    System.out.println("Test ManagedDependencies:\n"
-        + new Dumper().dump(1, pom));
+  /**
+   * Note: This is test-case 'dependency-exclusion'
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testDependencyExclusion() throws Exception {
+    Pom pom = new PomImpl("group.id", "excl-m2", "1");
+    pom = this.resolver.resolvePom(pom);
+    assertThat(MavenUtils.toURN(pom), is("mvn:group.id:excl-m2:1"));
+    final Filter filter = new Filter.AcceptAll();
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
+    assertThat(dependencies.size(), is(2));
+    assertListContains(dependencies, "mvn:group.id:excl-m1:1",
+        "mvn:junit:junit:4.11");
   }
 
 }

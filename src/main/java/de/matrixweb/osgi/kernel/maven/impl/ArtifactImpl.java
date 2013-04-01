@@ -11,37 +11,34 @@ public class ArtifactImpl implements Artifact {
 
   private String version;
 
-  /**
-   * @deprecated
-   */
-  @Deprecated
-  private String type;
-
-  private Artifact template;
+  private String packagingOrType;
 
   /**
-   * 
+   * @param packagingOrType
    */
-  public ArtifactImpl() {
+  public ArtifactImpl(final String packagingOrType) {
+    this.packagingOrType = packagingOrType;
   }
 
   /**
    * @param groupId
    * @param artifactId
    * @param version
+   * @param packagingOrType
    */
   public ArtifactImpl(final String groupId, final String artifactId,
-      final String version) {
+      final String version, final String packagingOrType) {
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.version = version;
+    this.packagingOrType = packagingOrType;
   }
 
   protected ArtifactImpl(final Artifact copy) {
     this.groupId = copy.getGroupId();
     this.artifactId = copy.getArtifactId();
     this.version = copy.getVersion();
-    this.type = copy.getType();
+    this.packagingOrType = copy.getPackagingOrType();
   }
 
   /**
@@ -81,11 +78,7 @@ public class ArtifactImpl implements Artifact {
    */
   @Override
   public String getVersion() {
-    String v = this.version;
-    if (v == null && this.template != null) {
-      v = this.template.getVersion();
-    }
-    return v;
+    return this.version;
   }
 
   /**
@@ -97,60 +90,42 @@ public class ArtifactImpl implements Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getType()
+   * @return the packagingOrType
    */
   @Override
-  @Deprecated
-  public String getType() {
-    String t = this.type;
-    if (t == null && this.template != null) {
-      t = this.template.getType();
-    }
-    if (t == null) {
-      t = "jar";
-    }
-    return t;
+  public String getPackagingOrType() {
+    return this.packagingOrType;
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#setType(java.lang.String)
+   * @param packagingOrType
+   *          the packagingOrType to set
    */
-  @Deprecated
   @Override
-  public void setType(final String type) {
-    this.type = type;
+  public void setPackagingOrType(final String packagingOrType) {
+    this.packagingOrType = packagingOrType;
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#clear()
+   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getGroupArtifactKey()
    */
   @Override
-  public void clear() {
-    this.groupId = null;
-    this.artifactId = null;
-    this.version = null;
-    this.type = null;
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#setTemplate(de.matrixweb.osgi.kernel.maven.impl.Artifact)
-   */
-  @Override
-  public void setTemplate(final Artifact template) {
-    this.template = template;
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#toURN()
-   */
-  @Override
-  public String toURN() {
-    final StringBuilder sb = new StringBuilder("mvn:").append(getGroupId())
-        .append(':').append(getArtifactId()).append(':').append(getVersion());
-    if (!"jar".equals(getType())) {
-      sb.append(':').append(getType());
+  public String getGroupArtifactKey() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(getGroupId()).append(':').append(getArtifactId());
+    if (!"jar".equals(getPackagingOrType())) {
+      sb.append("::").append(getPackagingOrType());
     }
     return sb.toString();
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "Artifact[" + getGroupId() + ':' + getArtifactId() + ':'
+        + getVersion() + ':' + getPackagingOrType() + ']';
   }
 
 }

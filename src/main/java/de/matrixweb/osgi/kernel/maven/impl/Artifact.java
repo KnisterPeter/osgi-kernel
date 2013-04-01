@@ -39,36 +39,19 @@ public interface Artifact {
   void setVersion(String version);
 
   /**
-   * @return the type
-   * @deprecated An {@link Artifact} does not have a type. A {@link Dependency}
-   *             has
+   * @return Return packaging or type
    */
-  @Deprecated
-  String getType();
+  String getPackagingOrType();
 
   /**
-   * @param type
-   *          the type to set
-   * @deprecated An {@link Artifact} does not have a type. A {@link Dependency}
-   *             has
+   * @param packagingOrType
+   *          the packagingOrType to set
    */
-  @Deprecated
-  void setType(String type);
+  void setPackagingOrType(String packagingOrType);
 
   /**
-   * 
+   * @return Returns the group artifact key (e.g. used for depencency lookup)
    */
-  void clear();
-
-  /**
-   * @param template
-   *          the template to set
-   */
-  void setTemplate(Artifact template);
-
-  /**
-   * @return Returns the urn for this artifact
-   */
-  String toURN();
+  String getGroupArtifactKey();
 
 }

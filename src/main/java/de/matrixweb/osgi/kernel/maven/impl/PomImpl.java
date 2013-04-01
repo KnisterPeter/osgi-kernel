@@ -1,27 +1,19 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author markusw
  */
 public class PomImpl extends ArtifactImpl implements Pom {
 
-  private PomImpl dependant;
+  // private PomImpl dependant;
 
   private Pom parent;
-
-  private String packaging = "jar";
 
   private final Map<String, String> properties = new HashMap<String, String>();
 
@@ -29,16 +21,13 @@ public class PomImpl extends ArtifactImpl implements Pom {
 
   private final Map<String, Dependency> dependencies = new HashMap<String, Dependency>();
 
-  /**
-   * TODO: Move to {@link Dependency}
-   */
-  @Deprecated
-  private final List<String> exclusions = new LinkedList<String>();
+  private Artifact template;
 
   /**
    * 
    */
   public PomImpl() {
+    super("jar");
   }
 
   /**
@@ -48,7 +37,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   public PomImpl(final String groupId, final String artifactId,
       final String version) {
-    super(groupId, artifactId, version);
+    super(groupId, artifactId, version, "jar");
     initProperties();
   }
 
@@ -58,9 +47,8 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   public PomImpl(final Pom dependant, final Pom copy) {
     super(copy);
-    this.dependant = (PomImpl) dependant;
+    // this.dependant = (PomImpl) dependant;
     setPackaging(copy.getPackaging());
-    this.exclusions.addAll(copy.getExclusions());
     initProperties();
   }
 
@@ -74,14 +62,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
     addProperty("project.version", getVersion());
     addProperty("pom.version", getVersion());
     addProperty("version", getVersion());
-  }
-
-  void updateAfterParentResolved(final String gak) {
-    if (getVersion() == null && this.dependant != null) {
-      final Artifact artifact = this.dependant.getManagedDependencies()
-          .get(gak).getPom();
-      setTemplate(artifact);
-    }
   }
 
   /**
@@ -105,10 +85,18 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public final String getVersion() {
-    return resolveProperties(super.getVersion());
+    String v = super.getVersion();
+    if (v == null && this.template != null) {
+      v = this.template.getVersion();
+    }
+    return resolveProperties(v);
   }
 
-  private String resolveProperties(final String input) {
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#resolveProperties(java.lang.String)
+   */
+  @Override
+  public String resolveProperties(final String input) {
     String result = input;
     if (result != null) {
       int start = result.indexOf("${");
@@ -139,10 +127,10 @@ public class PomImpl extends ArtifactImpl implements Pom {
   }
 
   protected final String getReplacement(final String name) {
-    String replacement = getProperties().get(name);
-    if (replacement == null && this.dependant != null) {
-      replacement = this.dependant.getReplacement(name);
-    }
+    final String replacement = getProperties().get(name);
+    // if (replacement == null && this.dependant != null) {
+    // replacement = this.dependant.getReplacement(name);
+    // }
     return replacement;
   }
 
@@ -167,7 +155,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public String getPackaging() {
-    return this.packaging;
+    return getPackagingOrType();
   }
 
   /**
@@ -175,7 +163,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public final void setPackaging(final String packaging) {
-    this.packaging = packaging;
+    setPackagingOrType(packaging);
   }
 
   /**
@@ -205,91 +193,11 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public Collection<Dependency> getDependencies() {
-    return this.dependencies.values();
-  }
-
-  Set<Dependency> getFilteredDependencies(final boolean transitive,
-      final Filter filter) {
-    final Set<Dependency> set = new HashSet<Dependency>();
-    set.addAll(internalGetFilteredDependencies(transitive,
-        transitive ? new Filter.CompoundFilter(filter,
-            new Filter.AcceptOptional(false)) : filter));
-    return set;
-  }
-
-  private Set<Dependency> internalGetFilteredDependencies(
-      final boolean transitive, final Filter filter) {
-    final Set<Dependency> set = new HashSet<Dependency>();
-    final List<String> excl = getAllExclusions();
-    for (final Dependency dependency : getDependenciesIncludingParent()) {
-      if (!excl.contains(dependency.getGroupArtifactKey())
-          && filter.accept(dependency)) {
-        set.add(dependency);
-        if (transitive) {
-          set.addAll(((PomImpl) dependency.getPom())
-              .internalGetFilteredDependencies(transitive, filter));
-        }
-      }
-    }
-    set.removeAll(excl);
-    return set;
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#resolveNearestDependencies(de.matrixweb.osgi.kernel.maven.impl.Filter)
-   */
-  @Override
-  public Set<Dependency> resolveNearestDependencies(final Filter filter) {
-    final Set<Dependency> set = new HashSet<Dependency>();
-    for (final Dependency candidate : getFilteredDependencies(true, filter)) {
-      final Queue<Dependency> nodes = new ConcurrentLinkedQueue<Dependency>();
-      nodes.addAll(getDependencies());
-      final Dependency result = findNearestDependency(nodes, candidate);
-      if (result != null && filter.accept(result)) {
-        set.add(result);
-      }
-    }
-    return removeNearestExclusions(set);
-  }
-
-  private Set<Dependency> removeNearestExclusions(
-      final Set<Dependency> dependencies) {
-    final Set<String> excl = new HashSet<String>();
-    for (final Dependency dependency : dependencies) {
-      excl.addAll(((PomImpl) dependency.getPom()).getAllExclusions());
-    }
-    final Iterator<Dependency> it = dependencies.iterator();
-    while (it.hasNext()) {
-      if (excl.contains(it.next().getGroupArtifactKey())) {
-        it.remove();
-      }
-    }
-    return dependencies;
-  }
-
-  private Dependency findNearestDependency(final Queue<Dependency> nodes,
-      final Dependency candidate) {
-    while (!nodes.isEmpty()) {
-      final Dependency node = nodes.remove();
-      if (candidate.getGroupArtifactKey().equals(node.getGroupArtifactKey())) {
-        return node;
-      }
-      for (final Dependency dependency : ((PomImpl) node.getPom())
-          .getDependenciesIncludingParent()) {
-        if (dependency != node) {
-          nodes.add(dependency);
-        }
-      }
-    }
-    return null;
-  }
-
-  private List<Dependency> getDependenciesIncludingParent() {
-    final List<Dependency> list = new ArrayList<Dependency>();
-    list.addAll(getDependencies());
+    final List<Dependency> list = new LinkedList<Dependency>();
     if (getParent() != null) {
       list.addAll(getParent().getDependencies());
     }
+    list.addAll(this.dependencies.values());
     return list;
   }
 
@@ -303,34 +211,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
 
   void clearDependencies() {
     this.dependencies.clear();
-  }
-
-  @Deprecated
-  private List<String> getAllExclusions() {
-    final List<String> list = new ArrayList<String>();
-    list.addAll(this.exclusions);
-    if (this.dependant != null) {
-      list.addAll(this.dependant.getAllExclusions());
-    }
-    return list;
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#addExclusion(java.lang.String)
-   */
-  @Deprecated
-  @Override
-  public void addExclusion(final String exclusion) {
-    this.exclusions.add(exclusion);
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#getExclusions()
-   */
-  @Deprecated
-  @Override
-  public List<String> getExclusions() {
-    return this.exclusions;
   }
 
   /**
@@ -369,9 +249,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public String toUrl(final String repository, final String type) {
-    return repository + '/' + getGroupId().replace('.', '/') + '/'
-        + getArtifactId() + '/' + getVersion() + '/' + getArtifactId() + '-'
-        + getVersion() + '.' + type;
+    return MavenUtils.toUrl(repository, this, type);
   }
 
   /**
@@ -381,7 +259,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    final String urn = toURN();
+    final String urn = MavenUtils.toURN(this);
     result = prime * result + urn.hashCode();
     return result;
   }
@@ -401,7 +279,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
       return false;
     }
     final PomImpl other = (PomImpl) obj;
-    if (!toURN().equals(other.toURN())) {
+    if (!MavenUtils.toURN(this).equals(MavenUtils.toURN(other))) {
       return false;
     }
     return true;
@@ -412,7 +290,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public String toString() {
-    return toURN();
+    return MavenUtils.toURN(this);
   }
 
 }

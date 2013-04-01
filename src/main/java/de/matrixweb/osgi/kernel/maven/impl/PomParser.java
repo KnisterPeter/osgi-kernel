@@ -11,9 +11,11 @@ public class PomParser extends DefaultHandler {
 
   private final Pom pom;
 
-  private Dependency dependency = new DependencyImpl(new PomImpl());
+  private Pom parent;
 
-  private final Artifact exclusion = new ArtifactImpl();
+  private Dependency dependency;
+
+  private ArtifactImpl exclusion = new ArtifactImpl("jar");
 
   private final StringBuilder content = new StringBuilder();
   private boolean inParent = false;
@@ -32,6 +34,7 @@ public class PomParser extends DefaultHandler {
   public PomParser(final Pom pom) {
     super();
     this.pom = pom;
+    this.dependency = new DependencyImpl(pom);
   }
 
   @Override
@@ -40,6 +43,7 @@ public class PomParser extends DefaultHandler {
     this.content.setLength(0);
     if ("parent".equals(qName)) {
       this.inParent = true;
+      this.parent = new PomImpl();
     } else if ("build".equals(qName)) {
       this.inBuild = true;
     } else if ("profiles".equals(qName)) {
@@ -106,20 +110,16 @@ public class PomParser extends DefaultHandler {
     }
   }
 
-  /**
-   * TODO: Do not use the dependency holder for parsing the parent pom elements
-   */
   private void endElementInParent(final String qName) {
     if ("parent".equals(qName)) {
       this.inParent = false;
-      this.pom.setParent(new PomImpl(this.pom, this.dependency.getPom()));
-      this.dependency = new DependencyImpl(new PomImpl());
+      this.pom.setParent(this.parent);
     } else if ("groupId".equals(qName)) {
-      this.dependency.getPom().setGroupId(this.content.toString());
+      this.parent.setGroupId(this.content.toString());
     } else if ("artifactId".equals(qName)) {
-      this.dependency.getPom().setArtifactId(this.content.toString());
+      this.parent.setArtifactId(this.content.toString());
     } else if ("version".equals(qName)) {
-      this.dependency.getPom().setVersion(this.content.toString());
+      this.parent.setVersion(this.content.toString());
     }
   }
 
@@ -139,17 +139,16 @@ public class PomParser extends DefaultHandler {
     } else if (this.inDependency) {
       if ("dependency".equals(qName)) {
         this.inDependency = false;
-        callback.addDependency(new DependencyImpl(new PomImpl(this.pom,
-            this.dependency.getPom())));
-        this.dependency = new DependencyImpl(new PomImpl());
+        callback.addDependency(this.dependency);
+        this.dependency = new DependencyImpl(this.pom);
       } else if (this.inExclusions) {
         endElementInExclusions(qName);
       } else if ("groupId".equals(qName)) {
-        this.dependency.getPom().setGroupId(this.content.toString());
+        this.dependency.setGroupId(this.content.toString());
       } else if ("artifactId".equals(qName)) {
-        this.dependency.getPom().setArtifactId(this.content.toString());
+        this.dependency.setArtifactId(this.content.toString());
       } else if ("version".equals(qName)) {
-        this.dependency.getPom().setVersion(this.content.toString());
+        this.dependency.setVersion(this.content.toString());
       } else if ("type".equals(qName)) {
         this.dependency.setType(this.content.toString());
       } else if ("scope".equals(qName)) {
@@ -167,9 +166,8 @@ public class PomParser extends DefaultHandler {
     } else if (this.inExclusion) {
       if ("exclusion".equals(qName)) {
         this.inExclusion = false;
-        this.dependency.getPom().addExclusion(
-            this.exclusion.getGroupId() + ':' + this.exclusion.getArtifactId());
-        this.exclusion.clear();
+        this.dependency.addExclusion(this.exclusion);
+        this.exclusion = new ArtifactImpl("jar");
       } else if ("groupId".equals(qName)) {
         this.exclusion.setGroupId(this.content.toString());
       } else if ("artifactId".equals(qName)) {

@@ -4,18 +4,17 @@
 
   <parent>
     <groupId>group.id</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>excl-parent</artifactId>
     <version>1</version>
   </parent>
 
-  <artifactId>m2</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>excl-m2</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>m1</artifactId>
-      <type>pom</type>
+      <artifactId>excl-m1</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

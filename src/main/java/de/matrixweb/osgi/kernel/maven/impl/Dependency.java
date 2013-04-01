@@ -5,10 +5,10 @@ import java.util.List;
 /**
  * @author markusw
  */
-public interface Dependency {
+public interface Dependency extends Artifact {
 
   /**
-   * @return Returns the {@link Pom} for this {@link Dependency}
+   * @return Return the {@link Pom} this {@link Dependency} is declared in
    */
   Pom getPom();
 
@@ -47,19 +47,22 @@ public interface Dependency {
   void setOptional(boolean optional);
 
   /**
+   * @param exclusion
+   *          The {@link Artifact} exclusion
+   */
+  void addExclusion(Artifact exclusion);
+
+  /**
+   * @param artifact
+   *          The {@link Artifact} to check
+   * @return Returns true if this artifact is excluded in the dependency
+   *         delcaration, false otherwise
+   */
+  boolean excludes(Artifact artifact);
+
+  /**
    * @return Returns a list of excluded {@link Pom} from this {@link Dependency}
    */
-  List<Pom> getExclusions();
-
-  /**
-   * @return Returns the group artifact key (e.g. used for depencency lookup)
-   */
-  String getGroupArtifactKey();
-
-  /**
-   * Updates the {@link Dependency} properties after the containing {@link Pom}
-   * parent (if any) has been resolved.
-   */
-  void updateAfterParentResolved();
+  List<Artifact> getExclusions();
 
 }

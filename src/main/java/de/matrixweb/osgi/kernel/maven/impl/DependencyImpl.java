@@ -1,11 +1,12 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author markusw
  */
-public class DependencyImpl implements Dependency {
+public class DependencyImpl extends ArtifactImpl implements Dependency {
 
   private final Pom pom;
 
@@ -13,15 +14,59 @@ public class DependencyImpl implements Dependency {
 
   private boolean optional = false;
 
+  private final List<Artifact> exclusions = new LinkedList<Artifact>();
+
   /**
    * @param pom
    */
   public DependencyImpl(final Pom pom) {
+    super("jar");
     this.pom = pom;
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#getPom()
+   * @param copy
+   */
+  public DependencyImpl(final Dependency copy) {
+    super(copy);
+    this.pom = copy.getPom();
+    setType(copy.getType());
+    setScope(copy.getScope());
+    setOptional(copy.isOptional());
+    this.exclusions.addAll(copy.getExclusions());
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getGroupId()
+   */
+  @Override
+  public String getGroupId() {
+    return getPom().resolveProperties(super.getGroupId());
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getArtifactId()
+   */
+  @Override
+  public String getArtifactId() {
+    return getPom().resolveProperties(super.getArtifactId());
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getVersion()
+   */
+  @Override
+  public String getVersion() {
+    String v = super.getVersion();
+    if (v == null) {
+      v = getPom().getManagedDependencies().get(getGroupArtifactKey())
+          .getVersion();
+    }
+    return getPom().resolveProperties(v);
+  }
+
+  /**
+   * @return the pom
    */
   @Override
   public Pom getPom() {
@@ -33,7 +78,7 @@ public class DependencyImpl implements Dependency {
    */
   @Override
   public String getType() {
-    return this.pom.getType();
+    return getPackagingOrType();
   }
 
   /**
@@ -41,7 +86,7 @@ public class DependencyImpl implements Dependency {
    */
   @Override
   public void setType(final String type) {
-    this.pom.setType(type);
+    setPackagingOrType(type);
   }
 
   /**
@@ -77,33 +122,32 @@ public class DependencyImpl implements Dependency {
   }
 
   /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#addExclusion(de.matrixweb.osgi.kernel.maven.impl.Artifact)
+   */
+  @Override
+  public void addExclusion(final Artifact exclusion) {
+    this.exclusions.add(exclusion);
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#excludes(de.matrixweb.osgi.kernel.maven.impl.Artifact)
+   */
+  @Override
+  public boolean excludes(final Artifact artifact) {
+    for (final Artifact excl : getExclusions()) {
+      if (excl.getGroupArtifactKey().equals(artifact.getGroupArtifactKey())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#getExclusions()
    */
   @Override
-  public List<Pom> getExclusions() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#getGroupArtifactKey()
-   */
-  @Override
-  public String getGroupArtifactKey() {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(this.pom.getGroupId()).append(':')
-        .append(this.pom.getArtifactId());
-    if (!"jar".equals(getType())) {
-      sb.append("::").append(getType());
-    }
-    return sb.toString();
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Dependency#updateAfterParentResolved()
-   */
-  @Override
-  public void updateAfterParentResolved() {
-    ((PomImpl) getPom()).updateAfterParentResolved(getGroupArtifactKey());
+  public List<Artifact> getExclusions() {
+    return this.exclusions;
   }
 
   /**
@@ -111,8 +155,8 @@ public class DependencyImpl implements Dependency {
    */
   @Override
   public String toString() {
-    return getPom().toURN() + " [" + getScope() + (isOptional() ? '*' : "")
-        + "]";
+    return MavenUtils.toURN(this) + " [" + getScope()
+        + (isOptional() ? '*' : "") + "]";
   }
 
 }
