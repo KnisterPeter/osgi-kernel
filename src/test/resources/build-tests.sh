@@ -29,3 +29,7 @@ cd dependency-exclusion/
 mvn -Dmaven.repo.local=../local-m2 clean install
 cd ..
 
+cd optional-dependencies/
+mvn -Dmaven.repo.local=../local-m2 clean install
+cd ..
+

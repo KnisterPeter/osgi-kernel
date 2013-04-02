@@ -121,4 +121,22 @@ public class PomResolverTest {
         "mvn:junit:junit:4.11");
   }
 
+  /**
+   * Note: This is test-case 'optional-dependencies'
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testOptionalDependencies() throws Exception {
+    final Pom pom = this.resolver.resolvePom(new PomImpl("group.id",
+        "optional-dependencies", "1"));
+    assertThat(MavenUtils.toURN(pom),
+        is("mvn:group.id:optional-dependencies:1"));
+    final Filter filter = new Filter.AcceptOptional(false);
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
+    assertThat(dependencies.size(), is(0));
+  }
+
 }

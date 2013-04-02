@@ -166,7 +166,8 @@ public class MavenInstallerImpl implements MavenInstaller {
       final List<Pom> requiredDependencies = new LinkedList<Pom>();
       for (final Pom dependency : resolver.getFilteredDependencies(rpom,
           new Filter.CompoundFilter(new Filter.AcceptScopes("compile",
-              "runtime"), new Filter.NotAcceptTypes("pom")))) {
+              "runtime"), new Filter.NotAcceptTypes("pom"),
+              new Filter.AcceptOptional(false)))) {
         if (!embedded.contains(MavenUtils.toURN(dependency))) {
           requiredDependencies.add(resolver.resolvePom(dependency));
         }
