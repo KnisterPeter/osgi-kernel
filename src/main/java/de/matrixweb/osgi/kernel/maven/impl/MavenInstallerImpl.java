@@ -219,7 +219,8 @@ public class MavenInstallerImpl implements MavenInstaller {
       BundleException {
     InputStream in = null;
     if (task.pom != null) {
-      in = new URL(task.pom.toUrl(this.repository, "jar")).openStream();
+      in = new URL(MavenUtils.toUrl(this.repository, task.pom, "jar"))
+          .openStream();
     }
     try {
       System.out.println("Updating bundle "
@@ -251,8 +252,8 @@ public class MavenInstallerImpl implements MavenInstaller {
     task.bundle = this.framework.getBundleContext().getBundle(location);
     if (task.bundle == null) {
       System.out.println("Installing bundle " + MavenUtils.toURN(pom));
-      final InputStream in = new URL(pom.toUrl(this.repository, "jar"))
-          .openStream();
+      final InputStream in = new URL(MavenUtils.toUrl(this.repository, pom,
+          "jar")).openStream();
       try {
         task.bundle = this.framework.getBundleContext().installBundle(location,
             in);

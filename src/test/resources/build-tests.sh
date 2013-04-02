@@ -48,3 +48,21 @@ mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
 cd ..
 cd ..
 
+cd optional-dependencies2/
+cd lib-v1/
+mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
+cd ..
+cd lib-v2/
+mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
+cd ..
+cd dep1/
+mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
+cd ..
+cd dep2/
+mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
+cd ..
+cd base/
+mvn -Dmaven.repo.local=../../local-m2 clean install || exit 1
+cd ..
+cd ..
+

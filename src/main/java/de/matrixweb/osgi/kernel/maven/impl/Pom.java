@@ -70,19 +70,4 @@ public interface Pom extends Artifact {
    */
   String resolveProperties(final String input);
 
-  /**
-   * @param repository
-   * @return Returns the {@link Pom} {@link java.net.URL} locating it in the
-   *         repository
-   */
-  String toUrl(String repository);
-
-  /**
-   * @param repository
-   * @param type
-   * @return Returns the {@link Pom} {@link java.net.URL} locating it in the
-   *         repository
-   */
-  String toUrl(String repository, String type);
-
 }

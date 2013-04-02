@@ -34,13 +34,6 @@ public class ArtifactImpl implements Artifact {
     this.packagingOrType = packagingOrType;
   }
 
-  protected ArtifactImpl(final Artifact copy) {
-    this.groupId = copy.getGroupId();
-    this.artifactId = copy.getArtifactId();
-    this.version = copy.getVersion();
-    this.packagingOrType = copy.getPackagingOrType();
-  }
-
   /**
    * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getGroupId()
    */

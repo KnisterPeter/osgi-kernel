@@ -160,4 +160,24 @@ public class PomResolverTest {
     assertThat(dependencies.size(), is(0));
   }
 
+  /**
+   * Note: This is test-case 'optional-dependencies2'
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testOptionalDependencies2() throws Exception {
+    final Pom pom = this.resolver.resolvePom(new PomImpl("sko.repro3", "base",
+        "1"));
+    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro3:base:1"));
+    final Filter filter = new Filter.AcceptOptional(false);
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
+    assertThat(dependencies.size(), is(4));
+    assertListContains(dependencies, "mvn:sko.repro3:dep1:1",
+        "mvn:org.apache.felix:org.osgi.core:1.4.0:bundle",
+        "mvn:sko.repro3:dep2:1", "mvn:sko.repro3:lib:2");
+  }
+
 }

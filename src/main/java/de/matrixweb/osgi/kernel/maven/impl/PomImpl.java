@@ -21,8 +21,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
 
   private final Map<String, Dependency> dependencies = new HashMap<String, Dependency>();
 
-  private Artifact template;
-
   /**
    * 
    */
@@ -38,17 +36,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
   public PomImpl(final String groupId, final String artifactId,
       final String version) {
     super(groupId, artifactId, version, "jar");
-    initProperties();
-  }
-
-  /**
-   * @param dependant
-   * @param copy
-   */
-  public PomImpl(final Pom dependant, final Pom copy) {
-    super(copy);
-    // this.dependant = (PomImpl) dependant;
-    setPackaging(copy.getPackaging());
     initProperties();
   }
 
@@ -85,11 +72,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
    */
   @Override
   public final String getVersion() {
-    String v = super.getVersion();
-    if (v == null && this.template != null) {
-      v = this.template.getVersion();
-    }
-    return resolveProperties(v);
+    return resolveProperties(super.getVersion());
   }
 
   /**
@@ -127,11 +110,7 @@ public class PomImpl extends ArtifactImpl implements Pom {
   }
 
   protected final String getReplacement(final String name) {
-    final String replacement = getProperties().get(name);
-    // if (replacement == null && this.dependant != null) {
-    // replacement = this.dependant.getReplacement(name);
-    // }
-    return replacement;
+    return getProperties().get(name);
   }
 
   /**
@@ -209,10 +188,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
     this.dependencies.put(dependency.getGroupArtifactKey(), dependency);
   }
 
-  void clearDependencies() {
-    this.dependencies.clear();
-  }
-
   /**
    * @see de.matrixweb.osgi.kernel.maven.impl.Pom#getProperties()
    */
@@ -233,23 +208,6 @@ public class PomImpl extends ArtifactImpl implements Pom {
   @Override
   public final void addProperty(final String name, final String value) {
     this.properties.put(name, value);
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#toUrl(java.lang.String)
-   */
-  @Override
-  public String toUrl(final String repository) {
-    return toUrl(repository, getPackaging());
-  }
-
-  /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#toUrl(java.lang.String,
-   *      java.lang.String)
-   */
-  @Override
-  public String toUrl(final String repository, final String type) {
-    return MavenUtils.toUrl(repository, this, type);
   }
 
   /**

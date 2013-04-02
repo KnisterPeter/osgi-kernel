@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>sko.repro3</groupId>
+    <artifactId>dep2</artifactId>
+    <version>1</version>
+    <name>Dependency no. 2</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>sko.repro3</groupId>
+            <artifactId>lib</artifactId>
+            <version>2</version>
+        </dependency>
+    </dependencies>
+</project>

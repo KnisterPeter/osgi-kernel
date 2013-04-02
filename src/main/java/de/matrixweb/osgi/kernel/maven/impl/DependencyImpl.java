@@ -18,22 +18,11 @@ public class DependencyImpl extends ArtifactImpl implements Dependency {
 
   /**
    * @param pom
+   *          The {@link Pom} this {@link Dependency} is declared in
    */
   public DependencyImpl(final Pom pom) {
     super("jar");
     this.pom = pom;
-  }
-
-  /**
-   * @param copy
-   */
-  public DependencyImpl(final Dependency copy) {
-    super(copy);
-    this.pom = copy.getPom();
-    setType(copy.getType());
-    setScope(copy.getScope());
-    setOptional(copy.isOptional());
-    this.exclusions.addAll(copy.getExclusions());
   }
 
   /**
