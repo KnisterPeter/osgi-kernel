@@ -1,24 +1,10 @@
 package de.matrixweb.osgi.kernel.maven;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
  * @author markusw
+ * @deprecated Use the {@link Installer} instead. This is just for binary
+ *             compatiblity.
  */
-public interface MavenInstaller {
-
-  /**
-   * @param mvnURN
-   * @throws IOException
-   */
-  void installOrUpdate(String mvnURN) throws IOException;
-
-  /**
-   * @param update
-   * @param file
-   * @throws IOException
-   */
-  void installOrUpdate(boolean update, File... file) throws IOException;
-
+@Deprecated
+public interface MavenInstaller extends Installer {
 }

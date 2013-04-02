@@ -15,7 +15,7 @@ public class PomParser extends DefaultHandler {
 
   private Dependency dependency;
 
-  private ArtifactImpl exclusion = new ArtifactImpl("jar");
+  private Artifact exclusion = new Artifact("jar");
 
   private final StringBuilder content = new StringBuilder();
   private boolean inParent = false;
@@ -34,7 +34,7 @@ public class PomParser extends DefaultHandler {
   public PomParser(final Pom pom) {
     super();
     this.pom = pom;
-    this.dependency = new DependencyImpl(pom);
+    this.dependency = new Dependency(pom);
   }
 
   @Override
@@ -43,7 +43,7 @@ public class PomParser extends DefaultHandler {
     this.content.setLength(0);
     if ("parent".equals(qName)) {
       this.inParent = true;
-      this.parent = new PomImpl();
+      this.parent = new Pom();
     } else if ("build".equals(qName)) {
       this.inBuild = true;
     } else if ("profiles".equals(qName)) {
@@ -140,7 +140,7 @@ public class PomParser extends DefaultHandler {
       if ("dependency".equals(qName)) {
         this.inDependency = false;
         callback.addDependency(this.dependency);
-        this.dependency = new DependencyImpl(this.pom);
+        this.dependency = new Dependency(this.pom);
       } else if (this.inExclusions) {
         endElementInExclusions(qName);
       } else if ("groupId".equals(qName)) {
@@ -167,7 +167,7 @@ public class PomParser extends DefaultHandler {
       if ("exclusion".equals(qName)) {
         this.inExclusion = false;
         this.dependency.addExclusion(this.exclusion);
-        this.exclusion = new ArtifactImpl("jar");
+        this.exclusion = new Artifact("jar");
       } else if ("groupId".equals(qName)) {
         this.exclusion.setGroupId(this.content.toString());
       } else if ("artifactId".equals(qName)) {

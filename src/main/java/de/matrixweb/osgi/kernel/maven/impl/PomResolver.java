@@ -73,7 +73,7 @@ public class PomResolver {
         is = input;
       }
       try {
-        final Pom pom = new PomImpl(artifact.getGroupId(),
+        final Pom pom = new Pom(artifact.getGroupId(),
             artifact.getArtifactId(), artifact.getVersion());
         PARSER_FACTORY.newSAXParser().parse(is, new PomParser(pom));
         if (pom.getParent() != null) {

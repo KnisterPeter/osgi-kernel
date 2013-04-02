@@ -46,7 +46,7 @@ public class MavenInstallerImpl implements MavenInstaller {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.MavenInstaller#installOrUpdate(java.lang.String)
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(java.lang.String)
    */
   @Override
   public void installOrUpdate(final String command) throws IOException {
@@ -58,7 +58,7 @@ public class MavenInstallerImpl implements MavenInstaller {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.MavenInstaller#installOrUpdate(boolean,
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean,
    *      java.io.File[])
    */
   @Override
@@ -102,7 +102,7 @@ public class MavenInstallerImpl implements MavenInstaller {
   private Set<BundleTask> installFromJarFile(final JarFile jar)
       throws IOException {
     InputStream input = null;
-    PomImpl pom = null;
+    Pom pom = null;
     final Enumeration<JarEntry> entries = jar.entries();
     while (entries.hasMoreElements()) {
       final JarEntry entry = entries.nextElement();
@@ -114,7 +114,7 @@ public class MavenInstallerImpl implements MavenInstaller {
         try {
           final Properties props = new Properties();
           props.load(is);
-          pom = new PomImpl(props.getProperty("groupId"),
+          pom = new Pom(props.getProperty("groupId"),
               props.getProperty("artifactId"), props.getProperty("version"));
         } finally {
           is.close();
@@ -145,7 +145,7 @@ public class MavenInstallerImpl implements MavenInstaller {
       IOException {
     final String[] parts = command.split(":");
     if ("mvn".equals(parts[0])) {
-      final PomImpl pom = new PomImpl(parts[1], parts[2], parts[3]);
+      final Pom pom = new Pom(parts[1], parts[2], parts[3]);
       return install(pom, null);
     }
     return Collections.emptySet();

@@ -11,6 +11,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
+import de.matrixweb.osgi.kernel.maven.Installer;
 import de.matrixweb.osgi.kernel.maven.MavenInstaller;
 import de.matrixweb.osgi.kernel.maven.impl.MavenInstallerImpl;
 import de.matrixweb.osgi.kernel.maven.impl.MavenInstallerImpl.BundleTask;
@@ -71,6 +72,8 @@ public final class Kernel {
       throws IOException, InterruptedException {
     final MavenInstallerImpl maven = new MavenInstallerImpl(
         getRepository(args), framework);
+    framework.getBundleContext().registerService(Installer.class, maven, null);
+    // Note: This is for backward compatibility
     framework.getBundleContext().registerService(MavenInstaller.class, maven,
         null);
     installBundles(framework, maven, args);

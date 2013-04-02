@@ -54,8 +54,8 @@ public class PomResolverTest {
    */
   @Test
   public void testPropertyResolution() throws Exception {
-    Pom pom = new PomImpl("sko.repro1", "sub1", "1");
-    pom = this.resolver.resolvePom(pom);
+    final Pom pom = this.resolver
+        .resolvePom(new Pom("sko.repro1", "sub1", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro1:sub1:1:pom"));
     dump(pom);
     assertThat(pom.getDependencies().size(), is(2));
@@ -71,8 +71,7 @@ public class PomResolverTest {
   @Test
   public void testNearestDependencyResolutionIncludingExcludes()
       throws Exception {
-    Pom pom = new PomImpl("sko.repro", "base", "1");
-    pom = this.resolver.resolvePom(pom);
+    final Pom pom = this.resolver.resolvePom(new Pom("sko.repro", "base", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro:base:1"));
     final Filter filter = new Filter.CompoundFilter(new Filter.AcceptScopes(
         "compile", "runtime"), new Filter.NotAcceptTypes("pom"));
@@ -91,8 +90,7 @@ public class PomResolverTest {
    */
   @Test
   public void testManagedDependencies() throws Exception {
-    Pom pom = new PomImpl("group.id", "m2", "1");
-    pom = this.resolver.resolvePom(pom);
+    final Pom pom = this.resolver.resolvePom(new Pom("group.id", "m2", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:group.id:m2:1:pom"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
@@ -110,8 +108,8 @@ public class PomResolverTest {
    */
   @Test
   public void testDependencyExclusion() throws Exception {
-    Pom pom = new PomImpl("group.id", "excl-m2", "1");
-    pom = this.resolver.resolvePom(pom);
+    final Pom pom = this.resolver
+        .resolvePom(new Pom("group.id", "excl-m2", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:group.id:excl-m2:1"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
@@ -129,8 +127,8 @@ public class PomResolverTest {
    */
   @Test
   public void testDependencyExclusion2() throws Exception {
-    Pom pom = new PomImpl("sko.repro4", "base", "1");
-    pom = this.resolver.resolvePom(pom);
+    final Pom pom = this.resolver
+        .resolvePom(new Pom("sko.repro4", "base", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro4:base:1"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
@@ -149,7 +147,7 @@ public class PomResolverTest {
    */
   @Test
   public void testOptionalDependencies() throws Exception {
-    final Pom pom = this.resolver.resolvePom(new PomImpl("group.id",
+    final Pom pom = this.resolver.resolvePom(new Pom("group.id",
         "optional-dependencies", "1"));
     assertThat(MavenUtils.toURN(pom),
         is("mvn:group.id:optional-dependencies:1"));
@@ -167,8 +165,8 @@ public class PomResolverTest {
    */
   @Test
   public void testOptionalDependencies2() throws Exception {
-    final Pom pom = this.resolver.resolvePom(new PomImpl("sko.repro3", "base",
-        "1"));
+    final Pom pom = this.resolver
+        .resolvePom(new Pom("sko.repro3", "base", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro3:base:1"));
     final Filter filter = new Filter.AcceptOptional(false);
     dump(pom, filter);
