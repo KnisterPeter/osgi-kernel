@@ -31,7 +31,8 @@ public class PomResolverTest {
       final Collection<? extends Artifact> artifacts, final String... urns) {
     final List<String> list = Arrays.asList(urns);
     for (final Artifact artifact : artifacts) {
-      assertThat(list.contains(MavenUtils.toURN(artifact)), is(true));
+      final String urn = MavenUtils.toURN(artifact);
+      assertThat("Expected to contain urn " + urn, list.contains(urn), is(true));
     }
   }
 
@@ -119,6 +120,26 @@ public class PomResolverTest {
     assertThat(dependencies.size(), is(2));
     assertListContains(dependencies, "mvn:group.id:excl-m1:1",
         "mvn:junit:junit:4.11");
+  }
+
+  /**
+   * Note: This is test-case 'dependency-exclusion2'
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testDependencyExclusion2() throws Exception {
+    Pom pom = new PomImpl("sko.repro4", "base", "1");
+    pom = this.resolver.resolvePom(pom);
+    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro4:base:1"));
+    final Filter filter = new Filter.AcceptAll();
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
+    assertThat(dependencies.size(), is(4));
+    assertListContains(dependencies, "mvn:sko.repro4:dep1:1",
+        "mvn:org.apache.felix:org.osgi.core:1.4.0:bundle",
+        "mvn:sko.repro4:dep2:1", "mvn:sko.repro4:lib:1");
   }
 
   /**

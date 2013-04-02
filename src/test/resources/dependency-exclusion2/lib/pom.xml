@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>sko.repro4</groupId>
+    <artifactId>lib</artifactId>
+    <version>1</version>
+    <name>Library version 1</name>
+</project>
