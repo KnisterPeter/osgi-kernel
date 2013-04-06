@@ -16,6 +16,13 @@ public interface Installer {
 
   /**
    * @param update
+   * @param mvnURN
+   * @throws IOException
+   */
+  void installOrUpdate(boolean update, String mvnURN) throws IOException;
+
+  /**
+   * @param update
    * @param file
    * @throws IOException
    */
