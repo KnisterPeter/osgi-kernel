@@ -50,8 +50,16 @@ public class MavenInstallerImpl implements MavenInstaller {
    */
   @Override
   public void installOrUpdate(final String command) throws IOException {
+    installOrUpdate(true, command);
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean update, java.lang.String)
+   */
+  @Override
+  public void installOrUpdate(boolean update, final String command) throws IOException {
     try {
-      startOrUpdate(install(command), true);
+      startOrUpdate(install(command), update);
     } catch (final BundleException e) {
       Logger.log(e);
     }
