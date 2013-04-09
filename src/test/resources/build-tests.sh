@@ -72,3 +72,7 @@ mvn -Dmaven.repo.local=$base/local-m2 clean install || exit 1
 cd ..
 cd ..
 
+cd transitive-exclusion/
+mvn -Dmaven.repo.local=$base/local-m2 clean install || exit 1
+cd ..
+
