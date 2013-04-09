@@ -16,6 +16,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import de.matrixweb.osgi.kernel.utils.Logger;
+
 /**
  * @author markusw
  */
@@ -85,12 +87,10 @@ public class PomResolver {
       }
     } catch (final SAXException e) {
       // Skipping invalid pom
-      System.out.println("Invalid pom " + MavenUtils.toURN(artifact)
-          + " ... skipping");
+      Logger.log("Invalid pom " + MavenUtils.toURN(artifact) + " ... skipping");
     } catch (final FileNotFoundException e) {
       // Skipping missing pom
-      System.out.println("Missing pom " + MavenUtils.toURN(artifact)
-          + " ... skipping");
+      Logger.log("Missing pom " + MavenUtils.toURN(artifact) + " ... skipping");
     }
     return null;
   }
@@ -117,11 +117,11 @@ public class PomResolver {
         if (!done.contains(dependency.getGroupArtifactKey())
             && filter.accept(dependency)
             && !excludesArtifact(current, dependency)) {
-          final Pom resolved = resolvePom(dependency);
-          if (resolved != null) {
+          final Pom rpom = resolvePom(dependency);
+          if (rpom != null) {
             done.add(dependency.getGroupArtifactKey());
-            set.add(resolved);
-            inProcess.add(new DependencyPair(dependency, resolved));
+            set.add(rpom);
+            inProcess.add(new DependencyPair(dependency, rpom));
           }
         }
       }

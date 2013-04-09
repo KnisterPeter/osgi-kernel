@@ -216,7 +216,7 @@ public class MavenInstallerImpl implements MavenInstaller {
 
   private void start(final BundleTask task) throws BundleException {
     if (task.bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null) {
-      System.out.println("Starting bundle "
+      Logger.log("Starting bundle "
           + (task.pom != null ? MavenUtils.toURN(task.pom) : task.bundle
               .getLocation()));
       task.bundle.start();
@@ -231,7 +231,7 @@ public class MavenInstallerImpl implements MavenInstaller {
           .openStream();
     }
     try {
-      System.out.println("Updating bundle "
+      Logger.log("Updating bundle "
           + (task.pom != null ? MavenUtils.toURN(task.pom) : task.bundle
               .getLocation()));
       task.bundle.update(in);
@@ -259,7 +259,7 @@ public class MavenInstallerImpl implements MavenInstaller {
     task.pom = pom;
     task.bundle = this.framework.getBundleContext().getBundle(location);
     if (task.bundle == null) {
-      System.out.println("Installing bundle " + MavenUtils.toURN(pom));
+      Logger.log("Installing bundle " + MavenUtils.toURN(pom));
       final InputStream in = new URL(MavenUtils.toUrl(this.repository, pom,
           "jar")).openStream();
       try {

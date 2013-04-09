@@ -36,7 +36,7 @@ public class Pom extends Artifact {
     initProperties();
   }
 
-  private void initProperties() {
+  private final void initProperties() {
     addProperty("project.groupId", getGroupId());
     addProperty("pom.groupId", getGroupId());
     addProperty("groupId", getGroupId());

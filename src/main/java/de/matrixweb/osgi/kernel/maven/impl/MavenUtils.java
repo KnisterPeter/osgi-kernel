@@ -7,7 +7,10 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * @author markusw
  */
-public class MavenUtils {
+public final class MavenUtils {
+
+  private MavenUtils() {
+  }
 
   /**
    * @param artifact
