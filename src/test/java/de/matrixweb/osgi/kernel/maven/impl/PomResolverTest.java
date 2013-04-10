@@ -36,6 +36,12 @@ public class PomResolverTest {
     }
   }
 
+  private void expectDependencies(final Collection<? extends Artifact> actual,
+      final String... expected) {
+    assertThat(actual.size(), is(expected.length));
+    assertListContains(actual, expected);
+  }
+
   private void dump(final Pom pom) throws IOException,
       ParserConfigurationException {
     dump(pom, new Filter.AcceptAll());
@@ -58,9 +64,7 @@ public class PomResolverTest {
         .resolvePom(new Pom("sko.repro1", "sub1", "1"));
     assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro1:sub1:1:pom"));
     dump(pom);
-    assertThat(pom.getDependencies().size(), is(2));
-    assertListContains(pom.getDependencies(), "mvn:sko.repro1:sub2:1:pom",
-        "mvn:org.apache.felix:org.osgi.core:1.4.0");
+    expectDependencies(pom.getDependencies(), "mvn:sko.repro1:sub2:1:pom");
   }
 
   /**
@@ -78,8 +82,7 @@ public class PomResolverTest {
     dump(pom, filter);
     final Set<Pom> dependencies = this.resolver.getFilteredDependencies(pom,
         filter);
-    assertThat(dependencies.size(), is(2));
-    assertListContains(dependencies, "mvn:sko.repro:level1:1",
+    expectDependencies(dependencies, "mvn:sko.repro:level1:1",
         "mvn:sko.repro:level2:1");
   }
 
@@ -96,8 +99,7 @@ public class PomResolverTest {
     dump(pom, filter);
     final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
         pom, filter);
-    assertThat(dependencies.size(), is(2));
-    assertListContains(dependencies, "mvn:group.id:m1:1:pom",
+    expectDependencies(dependencies, "mvn:group.id:m1:1:pom",
         "mvn:junit:junit:3.8.1");
   }
 
@@ -115,8 +117,7 @@ public class PomResolverTest {
     dump(pom, filter);
     final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
         pom, filter);
-    assertThat(dependencies.size(), is(2));
-    assertListContains(dependencies, "mvn:group.id:excl-m1:1",
+    expectDependencies(dependencies, "mvn:group.id:excl-m1:1",
         "mvn:junit:junit:4.11");
   }
 
@@ -134,9 +135,7 @@ public class PomResolverTest {
     dump(pom, filter);
     final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
         pom, filter);
-    assertThat(dependencies.size(), is(4));
-    assertListContains(dependencies, "mvn:sko.repro4:dep1:1",
-        "mvn:org.apache.felix:org.osgi.core:1.4.0:bundle",
+    expectDependencies(dependencies, "mvn:sko.repro4:dep1:1",
         "mvn:sko.repro4:dep2:1", "mvn:sko.repro4:lib:1");
   }
 
@@ -172,9 +171,7 @@ public class PomResolverTest {
     dump(pom, filter);
     final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
         pom, filter);
-    assertThat(dependencies.size(), is(4));
-    assertListContains(dependencies, "mvn:sko.repro3:dep1:1",
-        "mvn:org.apache.felix:org.osgi.core:1.4.0:bundle",
+    expectDependencies(dependencies, "mvn:sko.repro3:dep1:1",
         "mvn:sko.repro3:dep2:1", "mvn:sko.repro3:lib:2");
   }
 
