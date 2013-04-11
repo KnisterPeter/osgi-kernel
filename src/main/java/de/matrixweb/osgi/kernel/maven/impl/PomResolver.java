@@ -112,15 +112,15 @@ public class PomResolver {
     final Queue<DependencyPair> inProcess = new ConcurrentLinkedQueue<DependencyPair>();
     inProcess.add(new DependencyPair(null, null, pom));
     while (!inProcess.isEmpty()) {
-      final DependencyPair current = inProcess.poll();
-      for (final Dependency dependency : current.pom.getDependencies()) {
+      final DependencyPair pair = inProcess.poll();
+      for (final Dependency dependency : pair.pom.getDependencies()) {
         if (!done.contains(dependency.getGroupArtifactKey())
-            && filter.accept(dependency) && !current.excludes(dependency)) {
+            && filter.accept(dependency) && !pair.excludes(dependency)) {
           final Pom resolved = resolvePom(dependency);
           if (resolved != null) {
             done.add(dependency.getGroupArtifactKey());
             set.add(resolved);
-            inProcess.add(new DependencyPair(current, dependency, resolved));
+            inProcess.add(new DependencyPair(pair, dependency, resolved));
           }
         }
       }
@@ -131,45 +131,22 @@ public class PomResolver {
 
   private static class DependencyPair {
 
-    /**
-     * The exclusions that have accumulated on the dependency path leading up to
-     * this dependency.
-     */
-    private final Set<Artifact> inheritedExclusions;
+    private final DependencyPair parent;
+
+    private final Dependency dependency;
+
     private final Pom pom;
 
     DependencyPair(final DependencyPair parent, final Dependency dependency,
         final Pom pom) {
-
-      this.inheritedExclusions = new HashSet<Artifact>();
-      if (parent != null) {
-        this.inheritedExclusions.addAll(parent.inheritedExclusions);
-      }
-      if (dependency != null) {
-        this.inheritedExclusions.addAll(dependency.getExclusions());
-      }
-
+      this.parent = parent;
+      this.dependency = dependency;
       this.pom = pom;
     }
 
-    /**
-     * Determines wether this dependency excludes a given artifact. That is not
-     * only the case if the artifact is directly excluded, but also if an
-     * exclusion was inherited from further up in the dependency tree.
-     * 
-     * @param artifact
-     *          an artifact
-     * @return true if the artifact is excluded by this dependency
-     */
     boolean excludes(final Artifact artifact) {
-      for (final Artifact exclusion : this.inheritedExclusions) {
-        if (exclusion.getGroupArtifactKey().equals(
-            artifact.getGroupArtifactKey())) {
-          return true;
-        }
-      }
-
-      return false;
+      return this.dependency != null && this.dependency.excludes(artifact)
+          || this.parent != null && this.parent.excludes(artifact);
     }
 
   }
