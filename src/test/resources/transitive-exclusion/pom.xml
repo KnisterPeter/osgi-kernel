@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>sko.repro6</groupId>
+    <artifactId>repro6</artifactId>
+    <version>1</version>
+    
+    <name>Parent POM</name>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>base</module>
+        <module>level1</module>
+        <module>level2</module>
+        <module>level3</module>
+    </modules>
+</project>

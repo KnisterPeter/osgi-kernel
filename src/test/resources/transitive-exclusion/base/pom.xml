@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>sko.repro6</groupId>
+    <artifactId>base</artifactId>
+    <version>1</version>
+    
+    <name>Base</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>sko.repro6</groupId>
+            <artifactId>level1</artifactId>
+            <version>1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>sko.repro6</groupId>
+                    <artifactId>level3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>

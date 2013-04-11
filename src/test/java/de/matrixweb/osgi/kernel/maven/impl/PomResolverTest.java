@@ -175,4 +175,18 @@ public class PomResolverTest {
         "mvn:sko.repro3:dep2:1", "mvn:sko.repro3:lib:2");
   }
 
+  @Test
+  public void testTransitiveExclusion() throws Exception {
+    final Pom pom = this.resolver
+        .resolvePom(new Pom("sko.repro6", "base", "1"));
+    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro6:base:1"));
+    final Filter filter = new Filter.AcceptOptional(false);
+    dump(pom, filter);
+    final Collection<Pom> dependencies = this.resolver.getFilteredDependencies(
+        pom, filter);
+    assertThat(dependencies.size(), is(2));
+    assertListContains(dependencies, "mvn:sko.repro6:level1:1",
+        "mvn:sko.repro6:level2:1");
+  }
+
 }
