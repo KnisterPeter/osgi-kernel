@@ -30,6 +30,11 @@ public interface Artifact {
   String getPackagingOrType();
 
   /**
+   * @return Returns a URN for this {@link Artifact}
+   */
+  String toURN();
+
+  /**
    * 
    */
   public interface Pom extends Artifact {

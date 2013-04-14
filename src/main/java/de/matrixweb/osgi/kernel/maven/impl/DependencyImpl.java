@@ -148,8 +148,7 @@ public class DependencyImpl extends ArtifactImpl implements Dependency {
    */
   @Override
   public String toString() {
-    return MavenUtils.toURN(this) + " [" + getScope()
-        + (isOptional() ? '*' : "") + "]";
+    return toURN() + " [" + getScope() + (isOptional() ? '*' : "") + "]";
   }
 
 }

@@ -190,23 +190,23 @@ public class InstallerImpl implements MavenInstaller {
     try {
       final PomResolver resolver = new PomResolver(this.repository);
       final PomImpl rpom = resolver.resolvePom(pom, input);
-      tasks.add(installBundle(MavenUtils.toURN(rpom), rpom));
+      tasks.add(installBundle(rpom.toURN(), rpom));
       final List<String> embedded = getEmbeddedDependencies(tasks.iterator()
           .next().bundle);
       if (!"pom".equals(rpom.getPackaging())) {
-        tasks.add(installBundle(MavenUtils.toURN(rpom), rpom));
+        tasks.add(installBundle(rpom.toURN(), rpom));
       }
       final List<PomImpl> requiredDependencies = new LinkedList<PomImpl>();
       for (final PomImpl dependency : resolver.getFilteredDependencies(rpom,
           new Filter.CompoundFilter(new Filter.AcceptScopes("compile",
               "runtime"), new Filter.NotAcceptTypes("pom"),
               new Filter.AcceptOptional(false)))) {
-        if (!embedded.contains(MavenUtils.toURN(dependency))) {
+        if (!embedded.contains(dependency.toURN())) {
           requiredDependencies.add(resolver.resolvePom(dependency));
         }
       }
       for (final PomImpl dep : requiredDependencies) {
-        tasks.add(installBundle(MavenUtils.toURN(dep), dep));
+        tasks.add(installBundle(dep.toURN(), dep));
       }
     } catch (final ParserConfigurationException e) {
       Logger.log(e);
@@ -248,8 +248,7 @@ public class InstallerImpl implements MavenInstaller {
   private void start(final BundleTask task) throws BundleException {
     if (task.bundle.getHeaders().get(Constants.FRAGMENT_HOST) == null) {
       Logger.log("Starting bundle "
-          + (task.pom != null ? MavenUtils.toURN(task.pom) : task.bundle
-              .getLocation()));
+          + (task.pom != null ? task.pom.toURN() : task.bundle.getLocation()));
       task.bundle.start();
     }
   }
@@ -263,8 +262,7 @@ public class InstallerImpl implements MavenInstaller {
     }
     try {
       Logger.log("Updating bundle "
-          + (task.pom != null ? MavenUtils.toURN(task.pom) : task.bundle
-              .getLocation()));
+          + (task.pom != null ? task.pom.toURN() : task.bundle.getLocation()));
       task.bundle.update(in);
     } finally {
       if (in != null) {
@@ -294,7 +292,7 @@ public class InstallerImpl implements MavenInstaller {
     task.pom = pom;
     task.bundle = this.framework.getBundleContext().getBundle(location);
     if (task.bundle == null) {
-      Logger.log("Installing bundle " + MavenUtils.toURN(pom));
+      Logger.log("Installing bundle " + pom.toURN());
       final InputStream in = new URL(MavenUtils.toUrl(this.repository, pom,
           "jar")).openStream();
       try {

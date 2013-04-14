@@ -58,7 +58,7 @@ public class PomResolver {
    */
   public PomImpl resolvePom(final Artifact artifact, final InputStream input)
       throws IOException, ParserConfigurationException {
-    final String urn = MavenUtils.toURN(artifact);
+    final String urn = artifact.toURN();
     if (!this.resolved.containsKey(urn)) {
       this.resolved.put(urn, internalResolve(artifact, input));
     }
@@ -88,10 +88,10 @@ public class PomResolver {
       }
     } catch (final SAXException e) {
       // Skipping invalid pom
-      Logger.log("Invalid pom " + MavenUtils.toURN(artifact) + " ... skipping");
+      Logger.log("Invalid pom " + artifact.toURN() + " ... skipping");
     } catch (final FileNotFoundException e) {
       // Skipping missing pom
-      Logger.log("Missing pom " + MavenUtils.toURN(artifact) + " ... skipping");
+      Logger.log("Missing pom " + artifact.toURN() + " ... skipping");
     }
     return null;
   }

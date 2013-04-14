@@ -16,21 +16,6 @@ public final class MavenUtils {
   }
 
   /**
-   * @param artifact
-   * @return Returns a URN for the given {@link PomImpl}
-   */
-  public static String toURN(final Artifact artifact) {
-    final StringBuilder sb = new StringBuilder("mvn:")
-        .append(artifact.getGroupId()).append(':')
-        .append(artifact.getArtifactId()).append(':')
-        .append(artifact.getVersion());
-    if (!"jar".equals(artifact.getPackagingOrType())) {
-      sb.append(':').append(artifact.getPackagingOrType());
-    }
-    return sb.toString();
-  }
-
-  /**
    * @param repository
    * @param artifact
    * @param type

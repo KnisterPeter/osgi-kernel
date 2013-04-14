@@ -212,7 +212,7 @@ public class PomImpl extends ArtifactImpl implements
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    final String urn = MavenUtils.toURN(this);
+    final String urn = toURN();
     result = prime * result + urn.hashCode();
     return result;
   }
@@ -232,7 +232,7 @@ public class PomImpl extends ArtifactImpl implements
       return false;
     }
     final PomImpl other = (PomImpl) obj;
-    if (!MavenUtils.toURN(this).equals(MavenUtils.toURN(other))) {
+    if (!toURN().equals(other.toURN())) {
       return false;
     }
     return true;
@@ -243,7 +243,7 @@ public class PomImpl extends ArtifactImpl implements
    */
   @Override
   public String toString() {
-    return MavenUtils.toURN(this);
+    return toURN();
   }
 
 }

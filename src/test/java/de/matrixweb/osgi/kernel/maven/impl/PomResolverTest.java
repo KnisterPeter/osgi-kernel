@@ -33,7 +33,7 @@ public class PomResolverTest {
       final Collection<? extends Artifact> artifacts, final String... urns) {
     final List<String> list = Arrays.asList(urns);
     for (final Artifact artifact : artifacts) {
-      assertThat(MavenUtils.toURN(artifact), isIn(list));
+      assertThat(artifact.toURN(), isIn(list));
     }
   }
 
@@ -63,7 +63,7 @@ public class PomResolverTest {
   public void testPropertyResolution() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("sko.repro1",
         "sub1", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro1:sub1:1:pom"));
+    assertThat(pom.toURN(), is("mvn:sko.repro1:sub1:1:pom"));
     dump(pom);
     expectDependencies(pom.getDependencies(), "mvn:sko.repro1:sub2:1:pom");
   }
@@ -78,7 +78,7 @@ public class PomResolverTest {
       throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("sko.repro",
         "base", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro:base:1"));
+    assertThat(pom.toURN(), is("mvn:sko.repro:base:1"));
     final Filter filter = new Filter.CompoundFilter(new Filter.AcceptScopes(
         "compile", "runtime"), new Filter.NotAcceptTypes("pom"));
     dump(pom, filter);
@@ -97,7 +97,7 @@ public class PomResolverTest {
   public void testManagedDependencies() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("group.id", "m2",
         "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:group.id:m2:1:pom"));
+    assertThat(pom.toURN(), is("mvn:group.id:m2:1:pom"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver
@@ -115,7 +115,7 @@ public class PomResolverTest {
   public void testDependencyExclusion() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("group.id",
         "excl-m2", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:group.id:excl-m2:1"));
+    assertThat(pom.toURN(), is("mvn:group.id:excl-m2:1"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver
@@ -133,7 +133,7 @@ public class PomResolverTest {
   public void testDependencyExclusion2() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("sko.repro4",
         "base", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro4:base:1"));
+    assertThat(pom.toURN(), is("mvn:sko.repro4:base:1"));
     final Filter filter = new Filter.AcceptAll();
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver
@@ -151,8 +151,7 @@ public class PomResolverTest {
   public void testOptionalDependencies() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("group.id",
         "optional-dependencies", "1"));
-    assertThat(MavenUtils.toURN(pom),
-        is("mvn:group.id:optional-dependencies:1"));
+    assertThat(pom.toURN(), is("mvn:group.id:optional-dependencies:1"));
     final Filter filter = new Filter.AcceptOptional(false);
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver
@@ -169,7 +168,7 @@ public class PomResolverTest {
   public void testOptionalDependencies2() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("sko.repro3",
         "base", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro3:base:1"));
+    assertThat(pom.toURN(), is("mvn:sko.repro3:base:1"));
     final Filter filter = new Filter.AcceptOptional(false);
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver
@@ -187,7 +186,7 @@ public class PomResolverTest {
   public void testTransitiveExclusion() throws Exception {
     final PomImpl pom = this.resolver.resolvePom(new PomImpl("sko.repro6",
         "base", "1"));
-    assertThat(MavenUtils.toURN(pom), is("mvn:sko.repro6:base:1"));
+    assertThat(pom.toURN(), is("mvn:sko.repro6:base:1"));
     final Filter filter = new Filter.AcceptOptional(false);
     dump(pom, filter);
     final Collection<PomImpl> dependencies = this.resolver

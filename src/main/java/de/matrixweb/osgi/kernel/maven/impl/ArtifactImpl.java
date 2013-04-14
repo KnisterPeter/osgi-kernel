@@ -113,6 +113,19 @@ public class ArtifactImpl implements Artifact {
   }
 
   /**
+   * @see de.matrixweb.osgi.kernel.maven.Artifact#toURN()
+   */
+  @Override
+  public String toURN() {
+    final StringBuilder sb = new StringBuilder("mvn:").append(getGroupId())
+        .append(':').append(getArtifactId()).append(':').append(getVersion());
+    if (!"jar".equals(getPackagingOrType())) {
+      sb.append(':').append(getPackagingOrType());
+    }
+    return sb.toString();
+  }
+
+  /**
    * @see java.lang.Object#toString()
    */
   @Override
