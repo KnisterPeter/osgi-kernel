@@ -16,6 +16,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import de.matrixweb.osgi.kernel.maven.Artifact;
 import de.matrixweb.osgi.kernel.utils.Logger;
 
 /**
@@ -28,7 +29,7 @@ public class PomResolver {
 
   private final String repository;
 
-  private final Map<String, Pom> resolved = new HashMap<String, Pom>();
+  private final Map<String, PomImpl> resolved = new HashMap<String, PomImpl>();
 
   /**
    * @param repository
@@ -39,11 +40,11 @@ public class PomResolver {
 
   /**
    * @param artifact
-   * @return Returns the given {@link Pom} in resolved status
+   * @return Returns the given {@link PomImpl} in resolved status
    * @throws IOException
    * @throws ParserConfigurationException
    */
-  public Pom resolvePom(final Artifact artifact) throws IOException,
+  public PomImpl resolvePom(final Artifact artifact) throws IOException,
       ParserConfigurationException {
     return resolvePom(artifact, null);
   }
@@ -51,11 +52,11 @@ public class PomResolver {
   /**
    * @param artifact
    * @param input
-   * @return Returns the given {@link Pom} in resolved status
+   * @return Returns the given {@link PomImpl} in resolved status
    * @throws IOException
    * @throws ParserConfigurationException
    */
-  public Pom resolvePom(final Artifact artifact, final InputStream input)
+  public PomImpl resolvePom(final Artifact artifact, final InputStream input)
       throws IOException, ParserConfigurationException {
     final String urn = MavenUtils.toURN(artifact);
     if (!this.resolved.containsKey(urn)) {
@@ -64,8 +65,8 @@ public class PomResolver {
     return this.resolved.get(urn);
   }
 
-  private Pom internalResolve(final Artifact artifact, final InputStream input)
-      throws IOException, ParserConfigurationException {
+  private PomImpl internalResolve(final Artifact artifact,
+      final InputStream input) throws IOException, ParserConfigurationException {
     try {
       InputStream is;
       if (input == null) {
@@ -75,7 +76,7 @@ public class PomResolver {
         is = input;
       }
       try {
-        final Pom pom = new Pom(artifact.getGroupId(),
+        final PomImpl pom = new PomImpl(artifact.getGroupId(),
             artifact.getArtifactId(), artifact.getVersion());
         PARSER_FACTORY.newSAXParser().parse(is, new PomParser(pom));
         if (pom.getParent() != null) {
@@ -97,26 +98,26 @@ public class PomResolver {
 
   /**
    * @param pom
-   *          The {@link Pom} to the get all dependencies for
+   *          The {@link PomImpl} to the get all dependencies for
    * @param filter
    *          The {@link Filter} to apply to the dependencies
-   * @return Returns a set of all dependencies for the given {@link Pom}
+   * @return Returns a set of all dependencies for the given {@link PomImpl}
    * @throws ParserConfigurationException
    * @throws IOException
    */
-  public Set<Pom> getFilteredDependencies(final Pom pom, final Filter filter)
-      throws IOException, ParserConfigurationException {
-    final Set<Pom> set = new HashSet<Pom>();
+  public Set<PomImpl> getFilteredDependencies(final PomImpl pom,
+      final Filter filter) throws IOException, ParserConfigurationException {
+    final Set<PomImpl> set = new HashSet<PomImpl>();
 
     final Set<String> done = new HashSet<String>();
     final Queue<DependencyPair> inProcess = new ConcurrentLinkedQueue<DependencyPair>();
     inProcess.add(new DependencyPair(null, null, pom));
     while (!inProcess.isEmpty()) {
       final DependencyPair pair = inProcess.poll();
-      for (final Dependency dependency : pair.pom.getDependencies()) {
+      for (final DependencyImpl dependency : pair.pom.getDependencies()) {
         if (!done.contains(dependency.getGroupArtifactKey())
             && filter.accept(dependency) && !pair.excludes(dependency)) {
-          final Pom resolved = resolvePom(dependency);
+          final PomImpl resolved = resolvePom(dependency);
           if (resolved != null) {
             done.add(dependency.getGroupArtifactKey());
             set.add(resolved);
@@ -133,18 +134,18 @@ public class PomResolver {
 
     private final DependencyPair parent;
 
-    private final Dependency dependency;
+    private final DependencyImpl dependency;
 
-    private final Pom pom;
+    private final PomImpl pom;
 
-    DependencyPair(final DependencyPair parent, final Dependency dependency,
-        final Pom pom) {
+    DependencyPair(final DependencyPair parent,
+        final DependencyImpl dependency, final PomImpl pom) {
       this.parent = parent;
       this.dependency = dependency;
       this.pom = pom;
     }
 
-    boolean excludes(final Artifact artifact) {
+    boolean excludes(final ArtifactImpl artifact) {
       return this.dependency != null && this.dependency.excludes(artifact)
           || this.parent != null && this.parent.excludes(artifact);
     }

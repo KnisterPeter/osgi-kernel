@@ -1,6 +1,6 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -21,11 +21,11 @@ public class PomParserTest {
    */
   @Test
   public void test() throws Exception {
-    final Pom pom = new Pom("groupId", "artifactId", "version");
+    final PomImpl pom = new PomImpl("groupId", "artifactId", "version");
     final InputStream is = new FileInputStream(new File("pom.xml"));
     SAXParserFactory.newInstance().newSAXParser().parse(is, new PomParser(pom));
     assertThat(pom.getPackaging(), is("jar"));
-    assertThat(pom.getDependencies().size() > 0, is(true));
+    assertThat(pom.getDependencies().size(), is(greaterThan(0)));
   }
 
 }

@@ -9,20 +9,21 @@ import java.util.Map;
 /**
  * @author markusw
  */
-public class Pom extends Artifact {
+public class PomImpl extends ArtifactImpl implements
+    de.matrixweb.osgi.kernel.maven.Artifact.Pom {
 
-  private Pom parent;
+  private PomImpl parent;
 
   private final Map<String, String> properties = new HashMap<String, String>();
 
-  private final Map<String, Dependency> managedDependencies = new HashMap<String, Dependency>();
+  private final Map<String, DependencyImpl> managedDependencies = new HashMap<String, DependencyImpl>();
 
-  private final Map<String, Dependency> dependencies = new HashMap<String, Dependency>();
+  private final Map<String, DependencyImpl> dependencies = new HashMap<String, DependencyImpl>();
 
   /**
    * 
    */
-  public Pom() {
+  public PomImpl() {
     super("jar");
   }
 
@@ -31,7 +32,8 @@ public class Pom extends Artifact {
    * @param artifactId
    * @param version
    */
-  public Pom(final String groupId, final String artifactId, final String version) {
+  public PomImpl(final String groupId, final String artifactId,
+      final String version) {
     super(groupId, artifactId, version, "jar");
     initProperties();
   }
@@ -49,7 +51,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#getGroupId()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#getGroupId()
    */
   @Override
   public final String getGroupId() {
@@ -57,7 +59,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#getArtifactId()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#getArtifactId()
    */
   @Override
   public final String getArtifactId() {
@@ -65,7 +67,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#getVersion()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#getVersion()
    */
   @Override
   public final String getVersion() {
@@ -114,7 +116,7 @@ public class Pom extends Artifact {
   /**
    * @return the parent
    */
-  public Pom getParent() {
+  public PomImpl getParent() {
     return this.parent;
   }
 
@@ -122,7 +124,7 @@ public class Pom extends Artifact {
    * @param parent
    *          the parent to set
    */
-  public void setParent(final Pom parent) {
+  public void setParent(final PomImpl parent) {
     this.parent = parent;
   }
 
@@ -145,7 +147,7 @@ public class Pom extends Artifact {
    * @param managedDependency
    *          the managedDependency to set
    */
-  public void addManagedDependency(final Dependency managedDependency) {
+  public void addManagedDependency(final DependencyImpl managedDependency) {
     this.managedDependencies.put(managedDependency.getGroupArtifactKey(),
         managedDependency);
   }
@@ -153,8 +155,8 @@ public class Pom extends Artifact {
   /**
    * @return the managedDependencies
    */
-  public Map<String, Dependency> getManagedDependencies() {
-    final Map<String, Dependency> deps = new HashMap<String, Dependency>();
+  public Map<String, DependencyImpl> getManagedDependencies() {
+    final Map<String, DependencyImpl> deps = new HashMap<String, DependencyImpl>();
     if (getParent() != null) {
       deps.putAll(getParent().getManagedDependencies());
     }
@@ -163,10 +165,11 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @return the dependencies
+   * @see de.matrixweb.osgi.kernel.maven.Artifact.Pom#getDependencies()
    */
-  public Collection<Dependency> getDependencies() {
-    final List<Dependency> list = new LinkedList<Dependency>();
+  @Override
+  public Collection<DependencyImpl> getDependencies() {
+    final List<DependencyImpl> list = new LinkedList<DependencyImpl>();
     if (getParent() != null) {
       list.addAll(getParent().getDependencies());
     }
@@ -178,7 +181,7 @@ public class Pom extends Artifact {
    * @param dependency
    *          the dependency to add
    */
-  public void addDependency(final Dependency dependency) {
+  public void addDependency(final DependencyImpl dependency) {
     this.dependencies.put(dependency.getGroupArtifactKey(), dependency);
   }
 
@@ -203,7 +206,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#hashCode()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#hashCode()
    */
   @Override
   public int hashCode() {
@@ -215,7 +218,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#equals(java.lang.Object)
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#equals(java.lang.Object)
    */
   @Override
   public boolean equals(final Object obj) {
@@ -228,7 +231,7 @@ public class Pom extends Artifact {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final Pom other = (Pom) obj;
+    final PomImpl other = (PomImpl) obj;
     if (!MavenUtils.toURN(this).equals(MavenUtils.toURN(other))) {
       return false;
     }
@@ -236,7 +239,7 @@ public class Pom extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#toString()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#toString()
    */
   @Override
   public String toString() {

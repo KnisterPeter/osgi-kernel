@@ -9,13 +9,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PomParser extends DefaultHandler {
 
-  private final Pom pom;
+  private final PomImpl pom;
 
-  private Pom parent;
+  private PomImpl parent;
 
-  private Dependency dependency;
+  private DependencyImpl dependency;
 
-  private Artifact exclusion = new Artifact("jar");
+  private ArtifactImpl exclusion = new ArtifactImpl("jar");
 
   private final StringBuilder content = new StringBuilder();
   private boolean inParent = false;
@@ -31,10 +31,10 @@ public class PomParser extends DefaultHandler {
   /**
    * @param pom
    */
-  public PomParser(final Pom pom) {
+  public PomParser(final PomImpl pom) {
     super();
     this.pom = pom;
-    this.dependency = new Dependency(pom);
+    this.dependency = new DependencyImpl(pom);
   }
 
   @Override
@@ -43,7 +43,7 @@ public class PomParser extends DefaultHandler {
     this.content.setLength(0);
     if ("parent".equals(qName)) {
       this.inParent = true;
-      this.parent = new Pom();
+      this.parent = new PomImpl();
     } else if ("build".equals(qName)) {
       this.inBuild = true;
     } else if ("profiles".equals(qName)) {
@@ -88,14 +88,14 @@ public class PomParser extends DefaultHandler {
     } else if (this.inDependencyManagement) {
       endElementInDependencyManagement(qName, new DependencyCallback() {
         @Override
-        public void addDependency(final Dependency dependency) {
+        public void addDependency(final DependencyImpl dependency) {
           PomParser.this.pom.addManagedDependency(dependency);
         }
       });
     } else if (this.inDependencies) {
       endElementInDependencies(qName, new DependencyCallback() {
         @Override
-        public void addDependency(final Dependency dependency) {
+        public void addDependency(final DependencyImpl dependency) {
           PomParser.this.pom.addDependency(dependency);
         }
       });
@@ -140,7 +140,7 @@ public class PomParser extends DefaultHandler {
       if ("dependency".equals(qName)) {
         this.inDependency = false;
         callback.addDependency(this.dependency);
-        this.dependency = new Dependency(this.pom);
+        this.dependency = new DependencyImpl(this.pom);
       } else if (this.inExclusions) {
         endElementInExclusions(qName);
       } else if ("groupId".equals(qName)) {
@@ -167,7 +167,7 @@ public class PomParser extends DefaultHandler {
       if ("exclusion".equals(qName)) {
         this.inExclusion = false;
         this.dependency.addExclusion(this.exclusion);
-        this.exclusion = new Artifact("jar");
+        this.exclusion = new ArtifactImpl("jar");
       } else if ("groupId".equals(qName)) {
         this.exclusion.setGroupId(this.content.toString());
       } else if ("artifactId".equals(qName)) {
@@ -178,7 +178,7 @@ public class PomParser extends DefaultHandler {
 
   private interface DependencyCallback {
 
-    void addDependency(Dependency dependency);
+    void addDependency(DependencyImpl dependency);
 
   }
 

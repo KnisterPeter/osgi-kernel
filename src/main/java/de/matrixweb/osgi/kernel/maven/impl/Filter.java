@@ -3,6 +3,8 @@ package de.matrixweb.osgi.kernel.maven.impl;
 import java.util.Arrays;
 import java.util.List;
 
+import de.matrixweb.osgi.kernel.maven.Artifact.Dependency;
+
 /**
  * @author markusw
  */
@@ -29,7 +31,7 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {
@@ -46,7 +48,7 @@ public interface Filter {
   class AcceptAll implements Filter {
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {
@@ -68,7 +70,7 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {
@@ -90,7 +92,7 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {
@@ -112,7 +114,7 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {
@@ -134,7 +136,7 @@ public interface Filter {
     }
 
     /**
-     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.impl.Dependency)
+     * @see de.matrixweb.osgi.kernel.maven.impl.Filter#accept(de.matrixweb.osgi.kernel.maven.Artifact.Dependency)
      */
     @Override
     public boolean accept(final Dependency dependency) {

@@ -13,8 +13,8 @@ import org.osgi.framework.launch.FrameworkFactory;
 
 import de.matrixweb.osgi.kernel.maven.Installer;
 import de.matrixweb.osgi.kernel.maven.MavenInstaller;
-import de.matrixweb.osgi.kernel.maven.impl.MavenInstallerImpl;
-import de.matrixweb.osgi.kernel.maven.impl.MavenInstallerImpl.BundleTask;
+import de.matrixweb.osgi.kernel.maven.impl.InstallerImpl;
+import de.matrixweb.osgi.kernel.maven.impl.InstallerImpl.BundleTask;
 import de.matrixweb.osgi.kernel.utils.Logger;
 
 /**
@@ -70,8 +70,8 @@ public final class Kernel {
 
   private void run(final Framework framework, final String... args)
       throws IOException, InterruptedException {
-    final MavenInstallerImpl maven = new MavenInstallerImpl(
-        getRepository(args), framework);
+    final InstallerImpl maven = new InstallerImpl(getRepository(args),
+        framework);
     framework.getBundleContext().registerService(Installer.class, maven, null);
     // Note: This is for backward compatibility
     framework.getBundleContext().registerService(MavenInstaller.class, maven,
@@ -81,9 +81,9 @@ public final class Kernel {
   }
 
   private void installBundles(final Framework framework,
-      final MavenInstallerImpl maven, final String... args) throws IOException {
+      final InstallerImpl maven, final String... args) throws IOException {
     try {
-      final Set<BundleTask> tasks = new HashSet<MavenInstallerImpl.BundleTask>();
+      final Set<BundleTask> tasks = new HashSet<InstallerImpl.BundleTask>();
       for (final String arg : args) {
         if (arg.startsWith("mvn:")) {
           try {
@@ -97,7 +97,7 @@ public final class Kernel {
               .start();
         }
       }
-      maven.startOrUpdate(tasks, false);
+      maven.startOrUpdate(tasks, false, true);
     } catch (final BundleException e) {
       Logger.log(e);
     }

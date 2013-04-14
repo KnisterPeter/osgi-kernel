@@ -3,30 +3,32 @@ package de.matrixweb.osgi.kernel.maven.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.matrixweb.osgi.kernel.maven.Artifact.Dependency;
+
 /**
  * @author markusw
  */
-public class Dependency extends Artifact {
+public class DependencyImpl extends ArtifactImpl implements Dependency {
 
-  private final Pom pom;
+  private final PomImpl pom;
 
   private String scope = "runtime";
 
   private boolean optional = false;
 
-  private final List<Artifact> exclusions = new LinkedList<Artifact>();
+  private final List<ArtifactImpl> exclusions = new LinkedList<ArtifactImpl>();
 
   /**
    * @param pom
-   *          The {@link Pom} this {@link Dependency} is declared in
+   *          The {@link PomImpl} this {@link DependencyImpl} is declared in
    */
-  public Dependency(final Pom pom) {
+  public DependencyImpl(final PomImpl pom) {
     super("jar");
     this.pom = pom;
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getGroupId()
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getGroupId()
    */
   @Override
   public String getGroupId() {
@@ -34,7 +36,7 @@ public class Dependency extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getArtifactId()
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getArtifactId()
    */
   @Override
   public String getArtifactId() {
@@ -42,7 +44,7 @@ public class Dependency extends Artifact {
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Artifact#getVersion()
+   * @see de.matrixweb.osgi.kernel.maven.impl.ArtifactImpl#getVersion()
    */
   @Override
   public String getVersion() {
@@ -55,53 +57,56 @@ public class Dependency extends Artifact {
   }
 
   /**
-   * @return Return the {@link Pom} this {@link Dependency} is declared in
+   * @return Return the {@link PomImpl} this {@link DependencyImpl} is declared
+   *         in
    */
-  public Pom getPom() {
+  public PomImpl getPom() {
     return this.pom;
   }
 
   /**
-   * @return Returns the type of this {@link Dependency}
+   * @see de.matrixweb.osgi.kernel.maven.Artifact.Dependency#getType()
    */
+  @Override
   public String getType() {
     return getPackagingOrType();
   }
 
   /**
    * @param type
-   *          This {@link Dependency}s type
+   *          This {@link DependencyImpl}s type
    */
   public void setType(final String type) {
     setPackagingOrType(type);
   }
 
   /**
-   * @return Returns the scope of this {@link Dependency}
+   * @see de.matrixweb.osgi.kernel.maven.Artifact.Dependency#getScope()
    */
+  @Override
   public String getScope() {
     return this.scope;
   }
 
   /**
    * @param scope
-   *          This {@link Dependency}s scope
+   *          This {@link DependencyImpl}s scope
    */
   public void setScope(final String scope) {
     this.scope = scope;
   }
 
   /**
-   * @return Returns true if this {@link Dependency} is optional, false
-   *         otherwise
+   * @see de.matrixweb.osgi.kernel.maven.Artifact.Dependency#isOptional()
    */
+  @Override
   public boolean isOptional() {
     return this.optional;
   }
 
   /**
    * @param optional
-   *          True if this {@link Dependency} is optional, false otherwise
+   *          True if this {@link DependencyImpl} is optional, false otherwise
    */
   public void setOptional(final boolean optional) {
     this.optional = optional;
@@ -109,20 +114,20 @@ public class Dependency extends Artifact {
 
   /**
    * @param exclusion
-   *          The {@link Artifact} exclusion
+   *          The {@link ArtifactImpl} exclusion
    */
-  public void addExclusion(final Artifact exclusion) {
+  public void addExclusion(final ArtifactImpl exclusion) {
     this.exclusions.add(exclusion);
   }
 
   /**
    * @param artifact
-   *          The {@link Artifact} to check
+   *          The {@link ArtifactImpl} to check
    * @return Returns true if this artifact is excluded in the dependency
    *         delcaration, false otherwise
    */
-  public boolean excludes(final Artifact artifact) {
-    for (final Artifact excl : getExclusions()) {
+  public boolean excludes(final ArtifactImpl artifact) {
+    for (final ArtifactImpl excl : getExclusions()) {
       if (excl.getGroupArtifactKey().equals(artifact.getGroupArtifactKey())) {
         return true;
       }
@@ -131,14 +136,15 @@ public class Dependency extends Artifact {
   }
 
   /**
-   * @return Returns a list of excluded {@link Pom} from this {@link Dependency}
+   * @return Returns a list of excluded {@link PomImpl} from this
+   *         {@link DependencyImpl}
    */
-  public List<Artifact> getExclusions() {
+  public List<ArtifactImpl> getExclusions() {
     return this.exclusions;
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.impl.Pom#toString()
+   * @see de.matrixweb.osgi.kernel.maven.impl.PomImpl#toString()
    */
   @Override
   public String toString() {

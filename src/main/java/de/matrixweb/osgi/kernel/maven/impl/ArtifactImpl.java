@@ -1,9 +1,11 @@
 package de.matrixweb.osgi.kernel.maven.impl;
 
+import de.matrixweb.osgi.kernel.maven.Artifact;
+
 /**
  * @author markusw
  */
-public class Artifact {
+public class ArtifactImpl implements Artifact {
 
   private String groupId;
 
@@ -16,7 +18,7 @@ public class Artifact {
   /**
    * @param packagingOrType
    */
-  public Artifact(final String packagingOrType) {
+  public ArtifactImpl(final String packagingOrType) {
     this.packagingOrType = packagingOrType;
   }
 
@@ -26,7 +28,7 @@ public class Artifact {
    * @param version
    * @param packagingOrType
    */
-  public Artifact(final String groupId, final String artifactId,
+  public ArtifactImpl(final String groupId, final String artifactId,
       final String version, final String packagingOrType) {
     this.groupId = groupId;
     this.artifactId = artifactId;
@@ -35,8 +37,9 @@ public class Artifact {
   }
 
   /**
-   * @return the groupId
+   * @see de.matrixweb.osgi.kernel.maven.Artifact#getGroupId()
    */
+  @Override
   public String getGroupId() {
     return this.groupId;
   }
@@ -50,8 +53,9 @@ public class Artifact {
   }
 
   /**
-   * @return the artifactId
+   * @see de.matrixweb.osgi.kernel.maven.Artifact#getArtifactId()
    */
+  @Override
   public String getArtifactId() {
     return this.artifactId;
   }
@@ -65,8 +69,9 @@ public class Artifact {
   }
 
   /**
-   * @return the version
+   * @see de.matrixweb.osgi.kernel.maven.Artifact#getVersion()
    */
+  @Override
   public String getVersion() {
     return this.version;
   }
@@ -80,8 +85,9 @@ public class Artifact {
   }
 
   /**
-   * @return Return packaging or type
+   * @see de.matrixweb.osgi.kernel.maven.Artifact#getPackagingOrType()
    */
+  @Override
   public String getPackagingOrType() {
     return this.packagingOrType;
   }
@@ -111,7 +117,7 @@ public class Artifact {
    */
   @Override
   public String toString() {
-    return "Artifact[" + getGroupId() + ':' + getArtifactId() + ':'
+    return "ArtifactImpl[" + getGroupId() + ':' + getArtifactId() + ':'
         + getVersion() + ':' + getPackagingOrType() + ']';
   }
 

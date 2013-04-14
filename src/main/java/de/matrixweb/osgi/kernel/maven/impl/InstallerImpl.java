@@ -24,13 +24,14 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.FrameworkWiring;
 
+import de.matrixweb.osgi.kernel.maven.Artifact.Pom;
 import de.matrixweb.osgi.kernel.maven.MavenInstaller;
 import de.matrixweb.osgi.kernel.utils.Logger;
 
 /**
  * @author markusw
  */
-public class MavenInstallerImpl implements MavenInstaller {
+public class InstallerImpl implements MavenInstaller {
 
   private final String repository;
 
@@ -40,7 +41,7 @@ public class MavenInstallerImpl implements MavenInstaller {
    * @param repository
    * @param framework
    */
-  public MavenInstallerImpl(final String repository, final Framework framework) {
+  public InstallerImpl(final String repository, final Framework framework) {
     this.repository = repository;
     this.framework = framework;
   }
@@ -49,20 +50,34 @@ public class MavenInstallerImpl implements MavenInstaller {
    * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(java.lang.String)
    */
   @Override
-  public void installOrUpdate(final String command) throws IOException {
-    installOrUpdate(true, command);
+  public Collection<BundleTask> installOrUpdate(final String mvnURN)
+      throws IOException {
+    return installOrUpdate(true, mvnURN);
   }
 
   /**
-   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean update, java.lang.String)
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean,
+   *      java.lang.String)
    */
   @Override
-  public void installOrUpdate(boolean update, final String command) throws IOException {
+  public Collection<BundleTask> installOrUpdate(final boolean update,
+      final String mvnURN) throws IOException {
+    return installOrUpdate(true, true, mvnURN);
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean,
+   *      boolean, java.lang.String)
+   */
+  @Override
+  public Collection<BundleTask> installOrUpdate(final boolean update,
+      final boolean refresh, final String mvnURN) throws IOException {
     try {
-      startOrUpdate(install(command), update);
+      return startOrUpdate(install(mvnURN), update, refresh);
     } catch (final BundleException e) {
       Logger.log(e);
     }
+    return null;
   }
 
   /**
@@ -70,9 +85,19 @@ public class MavenInstallerImpl implements MavenInstaller {
    *      java.io.File[])
    */
   @Override
-  public void installOrUpdate(final boolean update, final File... files)
-      throws IOException {
-    final Set<BundleTask> tasks = new HashSet<MavenInstallerImpl.BundleTask>();
+  public Collection<BundleTask> installOrUpdate(final boolean update,
+      final File... files) throws IOException {
+    return installOrUpdate(update, true, files);
+  }
+
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.Installer#installOrUpdate(boolean,
+   *      boolean, java.io.File[])
+   */
+  @Override
+  public Collection<BundleTask> installOrUpdate(final boolean update,
+      final boolean refresh, final File... files) throws IOException {
+    final Set<BundleTask> tasks = new HashSet<InstallerImpl.BundleTask>();
     for (final File file : files) {
       if (file.getName().endsWith(".jar")) {
         final JarFile jar = new JarFile(file);
@@ -92,7 +117,7 @@ public class MavenInstallerImpl implements MavenInstaller {
         }
       }
     }
-    startOrUpdate(tasks, update);
+    return startOrUpdate(tasks, update, refresh);
   }
 
   private BundleTask installNonMavenBundle(final File file)
@@ -110,7 +135,7 @@ public class MavenInstallerImpl implements MavenInstaller {
   private Set<BundleTask> installFromJarFile(final JarFile jar)
       throws IOException {
     InputStream input = null;
-    Pom pom = null;
+    PomImpl pom = null;
     final Enumeration<JarEntry> entries = jar.entries();
     while (entries.hasMoreElements()) {
       final JarEntry entry = entries.nextElement();
@@ -122,7 +147,7 @@ public class MavenInstallerImpl implements MavenInstaller {
         try {
           final Properties props = new Properties();
           props.load(is);
-          pom = new Pom(props.getProperty("groupId"),
+          pom = new PomImpl(props.getProperty("groupId"),
               props.getProperty("artifactId"), props.getProperty("version"));
         } finally {
           is.close();
@@ -143,36 +168,36 @@ public class MavenInstallerImpl implements MavenInstaller {
   }
 
   /**
-   * @param command
+   * @param mvnURN
    * @return Returns a {@link Set} of {@link BundleTask}s to process after
    *         installation
    * @throws BundleException
    * @throws IOException
    */
-  public Set<BundleTask> install(final String command) throws BundleException,
+  public Set<BundleTask> install(final String mvnURN) throws BundleException,
       IOException {
-    final String[] parts = command.split(":");
+    final String[] parts = mvnURN.split(":");
     if ("mvn".equals(parts[0])) {
-      final Pom pom = new Pom(parts[1], parts[2], parts[3]);
+      final PomImpl pom = new PomImpl(parts[1], parts[2], parts[3]);
       return install(pom, null);
     }
     return Collections.emptySet();
   }
 
-  private Set<BundleTask> install(final Pom pom, final InputStream input)
+  private Set<BundleTask> install(final PomImpl pom, final InputStream input)
       throws BundleException, IOException {
-    final Set<BundleTask> tasks = new HashSet<MavenInstallerImpl.BundleTask>();
+    final Set<BundleTask> tasks = new HashSet<InstallerImpl.BundleTask>();
     try {
       final PomResolver resolver = new PomResolver(this.repository);
-      final Pom rpom = resolver.resolvePom(pom, input);
+      final PomImpl rpom = resolver.resolvePom(pom, input);
       tasks.add(installBundle(MavenUtils.toURN(rpom), rpom));
       final List<String> embedded = getEmbeddedDependencies(tasks.iterator()
           .next().bundle);
       if (!"pom".equals(rpom.getPackaging())) {
         tasks.add(installBundle(MavenUtils.toURN(rpom), rpom));
       }
-      final List<Pom> requiredDependencies = new LinkedList<Pom>();
-      for (final Pom dependency : resolver.getFilteredDependencies(rpom,
+      final List<PomImpl> requiredDependencies = new LinkedList<PomImpl>();
+      for (final PomImpl dependency : resolver.getFilteredDependencies(rpom,
           new Filter.CompoundFilter(new Filter.AcceptScopes("compile",
               "runtime"), new Filter.NotAcceptTypes("pom"),
               new Filter.AcceptOptional(false)))) {
@@ -180,7 +205,7 @@ public class MavenInstallerImpl implements MavenInstaller {
           requiredDependencies.add(resolver.resolvePom(dependency));
         }
       }
-      for (final Pom dep : requiredDependencies) {
+      for (final PomImpl dep : requiredDependencies) {
         tasks.add(installBundle(MavenUtils.toURN(dep), dep));
       }
     } catch (final ParserConfigurationException e) {
@@ -192,8 +217,11 @@ public class MavenInstallerImpl implements MavenInstaller {
   /**
    * @param tasks
    * @param update
+   * @param refresh
+   * @return ...
    */
-  public void startOrUpdate(final Set<BundleTask> tasks, final boolean update) {
+  public Collection<BundleTask> startOrUpdate(final Set<BundleTask> tasks,
+      final boolean update, final boolean refresh) {
     for (final BundleTask task : tasks) {
       try {
         if (task.bundle != null) {
@@ -210,8 +238,11 @@ public class MavenInstallerImpl implements MavenInstaller {
       }
     }
 
-    // Refresh bundles after all updates are done
-    refresh(tasks);
+    if (refresh) {
+      // Refresh bundles after all updates are done
+      refresh(tasks);
+    }
+    return tasks;
   }
 
   private void start(final BundleTask task) throws BundleException {
@@ -242,18 +273,22 @@ public class MavenInstallerImpl implements MavenInstaller {
     }
   }
 
-  private void refresh(final Set<BundleTask> tasks) {
+  /**
+   * @see de.matrixweb.osgi.kernel.maven.Installer#refresh(java.util.Collection)
+   */
+  @Override
+  public void refresh(final Collection<? extends Fragment> fragments) {
     final FrameworkWiring fw = this.framework.adapt(FrameworkWiring.class);
     if (fw != null) {
       final Collection<Bundle> bundles = new ArrayList<Bundle>();
-      for (final BundleTask task : tasks) {
-        bundles.add(task.bundle);
+      for (final Fragment fragment : fragments) {
+        bundles.add(fragment.getBundle());
       }
       fw.refreshBundles(bundles);
     }
   }
 
-  private BundleTask installBundle(final String location, final Pom pom)
+  private BundleTask installBundle(final String location, final PomImpl pom)
       throws IOException, BundleException {
     final BundleTask task = new BundleTask();
     task.pom = pom;
@@ -291,13 +326,29 @@ public class MavenInstallerImpl implements MavenInstaller {
   }
 
   /** */
-  public static class BundleTask {
+  public static class BundleTask implements Fragment {
 
-    private Pom pom;
+    private PomImpl pom;
 
     private Bundle bundle;
 
     private boolean installed = false;
+
+    /**
+     * @see de.matrixweb.osgi.kernel.maven.Installer.Fragment#getBundle()
+     */
+    @Override
+    public Bundle getBundle() {
+      return this.bundle;
+    }
+
+    /**
+     * @see de.matrixweb.osgi.kernel.maven.Installer.Fragment#getPom()
+     */
+    @Override
+    public Pom getPom() {
+      return this.pom;
+    }
 
     /**
      * @see java.lang.Object#hashCode()
