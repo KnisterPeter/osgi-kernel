@@ -8,7 +8,7 @@
   </parent>
   <groupId>de.matrixweb.osgi</groupId>
   <artifactId>osgi-kernel</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0-SNAPSHOT</version>
 
   <name>OSGi Kernel</name>
   <description>This is a simple osgi runtime with the ability to use maven repositories to manage bundle dependencies and event transitive dependencies.</description>
